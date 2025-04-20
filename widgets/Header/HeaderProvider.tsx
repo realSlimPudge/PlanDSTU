@@ -5,7 +5,11 @@ type PropsHeader = {
 };
 export default function HeaderAnimation({ children }: PropsHeader) {
   return (
-    <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
+    <motion.div
+      initial={{ y: 30, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      className="fixed w-screen"
+    >
       {children}
     </motion.div>
   );

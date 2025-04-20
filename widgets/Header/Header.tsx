@@ -5,8 +5,8 @@ import HeaderAnimation from "./HeaderProvider";
 export default function Header() {
   return (
     <HeaderAnimation>
-      <header className="flex relative max-w-full text-2xl border-b transition-transform duration-300 h-[70px] border-b-gray-color-3">
-        <div className="w-[70%] mx-auto flex items-center justify-between">
+      <header className="flex max-w-full text-2xl border-b transition-transform duration-300 h-[70px] border-b-gray-color-3">
+        <div className="sm:w-[70%] w-[90%] mx-auto flex items-center justify-between">
           <Link
             href="/"
             className="text-3xl font-bold transition-colors duration-200 text-text-color ease hover:text-text-2-color"
