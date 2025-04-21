@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Montserrat } from "next/font/google";
+import { Golos_Text } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/features/Providers/themeProvider";
 import Header from "@/widgets/Header/Header";
 
-const montserrat = Montserrat({
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
+const golos = Golos_Text({
+  weight: ["400", "500", "600", "700", "800", "900"],
   subsets: ["latin"],
 });
 
@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" className={montserrat.className} suppressHydrationWarning>
+    <html lang="ru" className={golos.className} suppressHydrationWarning>
       <body>
         <ThemeProvider
           attribute="class"

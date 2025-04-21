@@ -1,0 +1,37 @@
+version: "3"
+
+services:
+  plandstu-go:
+    image: c0dys/plandstu-go:latest
+    environment:
+      - CONFIG_PATH=/app/config/local.yaml
+    ports:
+      - "8080:8080"
+    networks:
+      - plandstu
+
+  mongo-parser:
+    image: mongo:latest
+    container_name: mongo-parser
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/dbS
+    networks:
+      - plandstu
+  parser:
+    image: c0dys/plandstu_parser:latest
+    ports:
+      - "80:80"
+    networks:
+      - plandstu
+    depends_on:
+      - mongo-parser
+
+volumes:
+  mongo_data:
+
+networks:
+  plandstu:
+    driver: bridge

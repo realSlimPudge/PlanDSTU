@@ -1,13 +1,12 @@
 "use client";
 
+import host from "@/shared/host";
 import { registerSchema } from "@/features/Auth/Schemas/schemas";
 import { AuthType } from "@/features/Auth/Types/types";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 
 export default function RegistrationPage() {
-  const host = process.env.NEXT_PUBLIC_HOST;
-
   const {
     register,
     formState: { errors },
