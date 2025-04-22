@@ -1,13 +1,11 @@
 import FacultyLinkButton from "./LinkButton/FacultyLinkButton";
-import { Falculty } from "./Types/types";
+import { Faculty } from "./Types/types";
 
 type ListProps = {
-  data: Falculty[];
-  isLoading: boolean;
+  data: Faculty[];
 };
 
-export default function ListFaculties({ data, isLoading }: ListProps) {
-  console.log(data);
+export default function ListFaculties({ data }: ListProps) {
   return (
     <div className="flex flex-col gap-y-4">
       {data.map((el, i) => (

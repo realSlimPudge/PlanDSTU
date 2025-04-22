@@ -1,9 +1,9 @@
 import { MoveRight } from "lucide-react";
 import Link from "next/link";
-import { Falculty } from "../Types/types";
+import { Faculty } from "../Types/types";
 
 type ButtonProps = {
-  props: Falculty;
+  props: Faculty;
 };
 
 export default function FacultyLinkButton({ props }: ButtonProps) {

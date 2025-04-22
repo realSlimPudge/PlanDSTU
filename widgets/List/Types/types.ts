@@ -1,4 +1,4 @@
-export type Falculty = {
+export type Faculty = {
   id: string;
   title: string;
 };
