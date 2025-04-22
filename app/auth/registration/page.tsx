@@ -5,8 +5,10 @@ import { registerSchema } from "@/features/Auth/Schemas/schemas";
 import { AuthType } from "@/features/Auth/Types/types";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 export default function RegistrationPage() {
+  const router = useRouter();
   const {
     register,
     formState: { errors },
@@ -22,7 +24,7 @@ export default function RegistrationPage() {
       });
       if (!res.ok) throw new Error("Попробуйте позже");
     } finally {
-      console.log("Успех");
+      router.push("/faculties");
     }
   };
 

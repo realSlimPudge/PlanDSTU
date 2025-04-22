@@ -3,10 +3,12 @@
 import { loginSchema } from "@/features/Auth/Schemas/schemas";
 import { AuthType } from "@/features/Auth/Types/types";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 export default function LoginPage() {
   const host = process.env.NEXT_PUBLIC_HOST;
+  const router = useRouter();
 
   const {
     register,
@@ -23,7 +25,7 @@ export default function LoginPage() {
       });
       if (!res.ok) throw new Error("Попробуйте позже");
     } finally {
-      console.log("Успех");
+      router.push("/faculties");
     }
   };
 

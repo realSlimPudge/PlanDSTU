@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ThemeToggle } from "../ThemeSwitcher/ThemeSwitcher";
 import HeaderAnimation from "./HeaderProvider";
+import Image from "next/image";
 
 export default function Header() {
   return (
@@ -9,8 +10,14 @@ export default function Header() {
         <div className="sm:w-[70%] w-[85%] mx-auto flex items-center justify-between">
           <Link
             href="/"
-            className="text-3xl font-bold transition-colors duration-200 text-text-color ease hover:text-text-2-color"
+            className="flex gap-x-2 items-center text-3xl font-bold transition-colors duration-200 text-text-color ease hover:text-text-2-color"
           >
+            <Image
+              src="/95donstu.png"
+              alt="ДГТУ 95 лет"
+              width={50}
+              height={50}
+            />
             PlanDSTU
           </Link>
           <div>
