@@ -8,6 +8,7 @@ import {
   Controls,
   Edge,
   Node,
+  NodeTypes,
   Position,
   ReactFlow,
   useEdgesState,
@@ -15,7 +16,7 @@ import {
 } from "@xyflow/react";
 import { ArrowLeft } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import useSWR from "swr";
 import "@xyflow/react/dist/style.css";
 import CategoryNode from "@/features/Roadmap/Nodes/CategoryNode";
@@ -40,62 +41,68 @@ export default function RoadmapPage() {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
+  const nodeTypes = useMemo(() => ({ categoryNode: CategoryNode }), []);
+
   useEffect(() => {
     if (!roadmap) return;
 
-    const nodeWidth = 240;
-    const nodeHeight = 120;
-    const horizontalSpacing = 300;
+    const newNodes: Node[] = [];
+    const newEdges: Edge[] = [];
 
-    const newNodes: Node[] = roadmap.categories.map((item, idx) => ({
-      id: `node-${idx}`,
-      position: { x: idx * horizontalSpacing, y: 0 },
-      draggable: false,
-      data: {
-        label: (
-          <div style={{ padding: 10 }}>
-            <strong>{item.name}</strong>
-            <ul
-              style={{
-                marginTop: 8,
-                fontSize: 12,
-                listStyle: "disc",
-                paddingLeft: 16,
-              }}
-            >
-              {item.topics.map((t, i) => (
-                <li key={i}>{t.trim()}</li>
-              ))}
-            </ul>
-          </div>
-        ),
-      },
-      style: {
-        width: nodeWidth,
-        height: nodeHeight,
-        border: "1px solid #bbb",
-        borderRadius: 8,
-        background: "#fff",
-      },
-      sourcePosition: Position.Bottom,
-      targetPosition: Position.Top,
-    }));
+    roadmap.categories.forEach((cat, i) => {
+      const catId = `cat-${i}`;
+      const topics = cat.topics.length;
+      const isFirst = i === 0;
+      const isLast = i === roadmap.categories.length - 1;
 
-    const newEdges: Edge[] = roadmap.categories.slice(1).map((_, idx) => ({
-      id: `e-${idx}-${idx + 1}`,
-      source: `node-${idx}`,
-      target: `node-${idx + 1}`,
-      type: "smoothstep",
-      animated: true,
-    }));
+      newNodes.push({
+        id: catId,
+        position: {
+          x: i * 300,
+          y: 0,
+        },
+        data: { label: cat.name, isFirst, isLast, topics },
+        draggable: false,
+        type: "categoryNode",
+      });
+
+      if (i < roadmap.categories.length - 1) {
+        const nextCatId = `cat-${i + 1}`;
+        newEdges.push({
+          id: `edge-${catId}-${nextCatId}`,
+          source: catId,
+          target: nextCatId,
+          type: "smoothstep",
+          animated: true,
+        });
+      }
+
+      // Добавление topicNode
+      cat.topics.forEach((topic, j) => {
+        const topicId = `topic-${i}-${j}`;
+        newNodes.push({
+          id: topicId,
+          position: {
+            x: i * 300,
+            y: (j + 1) * 300,
+          },
+          data: { label: topic },
+          draggable: false,
+        });
+
+        newEdges.push({
+          id: `edge-${catId}-${topicId}`,
+          source: catId,
+          target: topicId,
+          type: "smoothstep",
+          animated: true,
+        });
+      });
+    });
 
     setNodes(newNodes);
     setEdges(newEdges);
   }, [roadmap, setNodes, setEdges]);
-
-  const nodeTypes = {
-    categoryNode: CategoryNode,
-  };
 
   if (error) {
     return (
@@ -133,9 +140,10 @@ export default function RoadmapPage() {
       <ReactFlow
         nodes={nodes}
         edges={edges}
+        fitView
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        fitView
+        nodeTypes={nodeTypes}
       >
         <Controls />
         <Background />
