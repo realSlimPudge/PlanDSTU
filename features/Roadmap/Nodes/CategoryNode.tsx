@@ -11,8 +11,8 @@ export default function CategoryNode({ data }: NodeProps<CategoryNode>) {
   return (
     <>
       {!data.isFirst && <Handle type="target" position={Position.Left} />}
-      <div className="bg-primary-light-color w-[200px] rounded-2xl px-2 py-3">
-        <h5 className="text-center text-text-contrast-color font-bold">
+      <div className="py-3 px-2 rounded-2xl border shadow-md bg-primary-light-color w-[200px] border-primary-color">
+        <h5 className="font-bold text-center text-text-contrast-color">
           {data.label}
         </h5>
       </div>

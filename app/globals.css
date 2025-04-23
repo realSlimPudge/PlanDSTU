@@ -206,3 +206,21 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* roadmap */
+
+.react-flow__attribution {
+  display: none !important;
+}
+
+.react-flow__panel {
+  border-radius: 10px !important;
+  background-color: var(--color-gray-color-4) !important;
+}
+.react-flow__controls-button {
+  outline: none !important;
+  border: none !important;
+  color: var(--color-text-color) !important;
+  background-color: var(--color-gray-color-4) !important;
+  border-radius: 10px !important;
+}

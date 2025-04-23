@@ -1,4 +1,5 @@
 "use client";
+import { motion } from "framer-motion";
 import { RoadmapType } from "@/features/Roadmap/Types/types";
 import fetcher from "@/shared/api/getFetcher";
 import host from "@/shared/host";
@@ -117,7 +118,7 @@ export default function RoadmapPage() {
               Ошибка загрузки данных. Попробуйте позже.
             </p>
             <button
-              className="flex gap-1 items-center text-text-2-color"
+              className="flex gap-1 items-center cursor-pointer text-text-2-color"
               onClick={() => router.back()}
             >
               <ArrowLeft strokeWidth={2} size={20} />
@@ -131,16 +132,41 @@ export default function RoadmapPage() {
 
   if (isLoading || !roadmap) {
     return (
-      <div className="flex justify-center items-center pt-40 w-screen h-[600px]">
+      <div className="w-fit h-fit absolute transform translate-y-[-50%] translate-x-[-50%] top-[50%] left-[50%]">
         <ListsAnimation>
-          <p className="text-2xl text-text-color">Загрузка...</p>
+          <div className="w-10 h-10 rounded-full animate-spin border-3 border-primary-color border-b-transparent"></div>
+        </ListsAnimation>
+      </div>
+    );
+  }
+
+  if (!isLoading && roadmap.categories.length === 0) {
+    return (
+      <div className="sm:w-[70%] w-[85%] mx-auto h-screen flex items-center justify-center">
+        <ListsAnimation>
+          <div className="flex flex-col gap-y-2 justify-between items-center">
+            <p className="mt-6 text-4xl text-center text-text-color">
+              К сожалению карта по данному предменту отсутствует
+            </p>
+            <button
+              className="flex gap-1 items-center cursor-pointer text-text-2-color"
+              onClick={() => router.back()}
+            >
+              <ArrowLeft strokeWidth={2} size={20} />
+              Назад
+            </button>
+          </div>
         </ListsAnimation>
       </div>
     );
   }
 
   return (
-    <div style={{ width: "100vw", height: "100vh", zIndex: 0 }}>
+    <motion.div
+      style={{ width: "100vw", height: "100vh", zIndex: 0 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -149,9 +175,13 @@ export default function RoadmapPage() {
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
       >
-        <Controls />
+        <Controls
+          style={{ background: "blue" }}
+          position="center-left"
+          orientation="vertical"
+        />
         <Background />
       </ReactFlow>
-    </div>
+    </motion.div>
   );
 }
