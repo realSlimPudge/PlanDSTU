@@ -8,8 +8,6 @@ import {
   Controls,
   Edge,
   Node,
-  NodeTypes,
-  Position,
   ReactFlow,
   useEdgesState,
   useNodesState,
@@ -20,6 +18,7 @@ import { useEffect, useMemo } from "react";
 import useSWR from "swr";
 import "@xyflow/react/dist/style.css";
 import CategoryNode from "@/features/Roadmap/Nodes/CategoryNode";
+import TopicNode from "@/features/Roadmap/Nodes/TopicNode";
 
 export default function RoadmapPage() {
   const { disciplineName, disciplineLink } = useParams<{
@@ -41,7 +40,10 @@ export default function RoadmapPage() {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
-  const nodeTypes = useMemo(() => ({ categoryNode: CategoryNode }), []);
+  const nodeTypes = useMemo(
+    () => ({ categoryNode: CategoryNode, topicNode: TopicNode }),
+    [],
+  );
 
   useEffect(() => {
     if (!roadmap) return;
@@ -72,8 +74,8 @@ export default function RoadmapPage() {
           id: `edge-${catId}-${nextCatId}`,
           source: catId,
           target: nextCatId,
-          type: "smoothstep",
-          animated: true,
+          type: "default",
+          animated: false,
         });
       }
 
@@ -88,13 +90,15 @@ export default function RoadmapPage() {
           },
           data: { label: topic },
           draggable: false,
+          type: "topicNode",
         });
 
         newEdges.push({
           id: `edge-${catId}-${topicId}`,
           source: catId,
           target: topicId,
-          type: "smoothstep",
+          type: "smoothless",
+          sourceHandle: "topic",
           animated: true,
         });
       });

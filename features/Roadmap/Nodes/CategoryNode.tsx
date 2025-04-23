@@ -1,22 +1,25 @@
-import { Handle, NodeProps, Position } from "@xyflow/react";
+import { Handle, Node, NodeProps, Position } from "@xyflow/react";
 
-type CategoryData = {
+export type CategoryNode = Node<{
   label: string;
   isFirst: boolean;
   isLast: boolean;
   topics: number;
-};
-export default function CategoryNode({ data }: NodeProps<CategoryData>) {
-  const { label, isFirst, isLast, topics } = data;
+}>;
 
+export default function CategoryNode({ data }: NodeProps<CategoryNode>) {
   return (
     <>
-      {!isFirst && <Handle type="target" position={Position.Left} />}
-      <div>
-        <h5>{label}</h5>
+      {!data.isFirst && <Handle type="target" position={Position.Left} />}
+      <div className="bg-primary-light-color w-[200px] rounded-2xl px-2 py-3">
+        <h5 className="text-center text-text-contrast-color font-bold">
+          {data.label}
+        </h5>
       </div>
-      {!isLast && <Handle type="source" position={Position.Right} />}
-      {topics > 0 && <Handle type="source" position={Position.Bottom} />}
+      {!data.isLast && <Handle type="source" position={Position.Right} />}
+      {data.topics > 0 && (
+        <Handle type="source" position={Position.Bottom} id="topic" />
+      )}
     </>
   );
 }
