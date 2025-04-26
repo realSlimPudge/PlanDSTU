@@ -177,8 +177,8 @@ export default function RoadmapPage() {
       >
         <Controls
           style={{ background: "blue" }}
-          position="center-left"
-          orientation="vertical"
+          position="bottom-center"
+          orientation="horizontal"
         />
         <Background />
       </ReactFlow>
