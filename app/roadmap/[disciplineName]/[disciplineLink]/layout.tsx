@@ -1,12 +1,19 @@
 "use client";
 import Chat from "@/features/Chat/Chat";
 import { Bot } from "lucide-react";
-import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function RoadmapLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const [chatOpen, setChatOpen] = useState<boolean>(false);
+
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setChatOpen(false);
+  }, [pathname]);
 
   function handleChatOpen() {
     setChatOpen((p) => !p);
@@ -16,7 +23,7 @@ export default function RoadmapLayout({
     <div className="overflow-hidden relative">
       <div
         className={` transition duration-300 ease absolute z-20  transform h-[calc(100vh_-_70px)] top-[70px] md:w-2/5 w-full 
-          right-0  ${chatOpen ? "translate-x-[100%] " : "translate-x-[0%] "}`}
+          right-0  ${!chatOpen ? "translate-x-[100%] " : "translate-x-[0%] "}`}
       >
         <Chat closeAction={handleChatOpen} />
       </div>
