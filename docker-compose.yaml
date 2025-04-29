@@ -38,12 +38,29 @@ services:
       - 11434:11434/tcp
     networks:
       - plandstu
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - plandstu
   llm-service:
     image: c0dys/llm-dstu:latest
     ports:
       - "8085:8085"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - OLLAMA_URL=http://ollama-dstu:11434
+      - PLANDSTU-GO_URL=http://plandstu-go:8080/api/v1/llm/
+      - THRESHOLD=5
     depends_on:
       - ollama-dstu
+      - redis
     networks:
       - plandstu
 volumes:

@@ -21,7 +21,7 @@ export default function HeaderAnimation({ children }: PropsHeader) {
 
   return (
     <div
-      className={`z-10 fixed w-screen duration-300 ease transition-all ${visible ? "translate-y-0" : "translate-y-[-70px]"}`}
+      className={`z-40 fixed w-screen duration-300 ease transition-all ${visible ? "translate-y-0" : "translate-y-[-70px]"}`}
     >
       <motion.div
         initial={{ y: 30, opacity: 0 }}

@@ -1,27 +1,64 @@
 "use client";
+import { motion } from "framer-motion";
 import TextareaAutosize from "react-textarea-autosize";
 import host from "@/shared/host";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
-import { ArrowUp, Globe, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Globe, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-
-type ChatMessages = {
-  sender: "user" | "bot";
-  content: string;
-};
-
-type ChatProps = {
-  closeAction: () => void;
-};
+import useSWR from "swr";
+import fetcher from "@/shared/api/getFetcher";
+import clearHistory from "./api/clearHistory";
+import { ChatMessages, ChatProps, HistoryRes } from "./types";
 
 export default function Chat({ closeAction: close }: ChatProps) {
+  const {
+    data: history,
+    error,
+    isLoading,
+    mutate,
+  } = useSWR<HistoryRes>(`${host}/llm/history`, fetcher);
+
   const [search, setSearch] = useState<boolean>(false);
   const [canSend, setCanSend] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<ChatMessages[]>([]);
 
+  const bottomRef = useRef<HTMLDivElement>(null);
   const sourceRef = useRef<EventSource | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // const [visible, setVisible] = useState(true);
+  const [showScrollDown, setShowScrollDown] = useState(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      const scrollTop = el.scrollTop;
+      const clientHeight = el.clientHeight;
+      const scrollHeight = el.scrollHeight;
+
+      // setVisible(scrollTop < 10);
+      setShowScrollDown(scrollHeight - scrollTop > clientHeight + 10);
+    };
+
+    el.addEventListener("scroll", handleScroll);
+    handleScroll();
+
+    // чистим слушатель
+    return () => {
+      el.removeEventListener("scroll", handleScroll);
+    };
+  }, [messages]);
+
+  useEffect(() => {
+    if (history?.history) {
+      setMessages(history.history);
+    }
+  }, [history]);
 
   useEffect(() => {
     setCanSend(message.trim().length > 0);
@@ -29,8 +66,8 @@ export default function Chat({ closeAction: close }: ChatProps) {
 
   // функция открытия SSE-потока
   const startStream = () => {
-    setMessages((prev) => [...prev, { sender: "user", content: message }]);
-    setMessages((prev) => [...prev, { sender: "bot", content: "" }]);
+    setMessages((prev) => [...prev, { type: "human", content: message }]);
+    setMessages((prev) => [...prev, { type: "ai", content: "" }]);
 
     sourceRef.current?.close();
 
@@ -47,9 +84,9 @@ export default function Chat({ closeAction: close }: ChatProps) {
       setMessages((prev) => {
         const msgs = [...prev];
         const lastIndex = msgs.length - 1;
-        if (msgs[lastIndex].sender === "bot") {
+        if (msgs[lastIndex].type === "ai") {
           msgs[lastIndex] = {
-            sender: "bot",
+            type: "ai",
             content: msgs[lastIndex].content + chunk,
           };
         }
@@ -83,19 +120,99 @@ export default function Chat({ closeAction: close }: ChatProps) {
     }
   }, [message]);
 
+  const scrollToBottom = () => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const confirmClear = async () => {
+    try {
+      await clearHistory();
+      setMessages([]);
+      mutate();
+      setShowModal(false);
+    } catch (e) {
+      console.error("Failed to clear history", e);
+    }
+  };
   return (
     <div className="flex relative flex-col w-full h-full border-l bg-app-bg border-divider-color">
-      <button
-        className="absolute top-5 right-5 z-30 cursor-pointer"
-        onClick={close}
+      {" "}
+      {showModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-40"
+        >
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-80">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+              Подтвердите действие
+            </h3>
+            <p className="mb-6 text-gray-700 dark:text-gray-300">
+              Вы уверены, что хотите удалить весь чат? Это действие необратимо.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                Отмена
+              </button>
+              <button
+                onClick={confirmClear}
+                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+              >
+                Удалить
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+      <div
+        className={`bg-app-bg rounded-b-xl absolute transform translate-x-[-50%] border border-gray-color-3 border-t-0 transition-all ease duration-300 top-0 left-1/2 w-fit gap-x-3 items-center 
+        justify-between sm:px-3 px-3 flex sm:py-1 py-2 z-30 cursor-pointer `}
       >
-        <X className="text-text-color" />
-      </button>
-      <div className="flex overflow-auto flex-col p-4 pt-20 pb-40 space-y-4 h-11/12">
+        <button
+          onClick={() => {
+            setShowModal(true);
+          }}
+          className="cursor-pointer hover:bg-gray-color-7 group rounded-sm transition-all duration-300 ease p-1"
+        >
+          <Trash2 className="text-text-color sm:w-[24px] sm:h-[24px] w-[18px] h-[18px]" />
+        </button>
+        <button
+          className="cursor-pointer hover:bg-gray-color-7 group rounded-sm transition-all duration-300 ease p-1"
+          onClick={close}
+        >
+          <X className="text-text-color sm:w-[24px] sm:h-[24px] w-[18px] h-[18px]" />
+        </button>
+      </div>
+      <div
+        className="flex overflow-auto flex-col p-4 pt-20 pb-40 space-y-4 h-11/12"
+        ref={containerRef}
+      >
+        {" "}
+        {isLoading && (
+          <div className="self-center text-sm text-gray-500">
+            Загрузка истории...
+          </div>
+        )}
+        {error && (
+          <div className="self-center text-sm text-red-500">
+            Ошибка загрузки истории.{" "}
+            <button onClick={() => mutate()} className="underline">
+              Повторить
+            </button>
+          </div>
+        )}
+        {!isLoading && !error && messages.length === 0 && (
+          <div className="self-center text-sm text-gray-500">
+            Пока история пуста
+          </div>
+        )}
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`px-4 py-2 rounded-lg max-w-[80%] w-fit ${msg.sender === "user"
+            className={`px-4 py-2 rounded-lg max-w-[80%] w-fit ${msg.type === "human"
                 ? "bg-primary-color text-text-contrast-color self-end"
                 : "bg-element-bg text-text-color self-start"
               }`}
@@ -105,8 +222,16 @@ export default function Chat({ closeAction: close }: ChatProps) {
             </ReactMarkdown>
           </div>
         ))}
+        <div ref={bottomRef}></div>
       </div>
       <div className="flex absolute bottom-0 flex-col justify-center items-center p-4 w-full">
+        <button
+          className={`absolute transform border-gray-color-3 border translate-x-[-50%] left-[50%] top-[-30px] rounded-full p-1 bg-app-bg cursor-pointer hover:bg-gray-color-7 
+           transition-all duration-300 ease ${showScrollDown ? "opacity-100" : "opacity-0"}`}
+          onClick={scrollToBottom}
+        >
+          <ArrowDown className="text-text-color" size={20} />
+        </button>
         <div className="flex flex-col gap-y-1 justify-between p-3 w-full rounded-3xl border h-fit bg-element-bg text-text-color border-divider-color">
           <TextareaAutosize
             minRows={1}
