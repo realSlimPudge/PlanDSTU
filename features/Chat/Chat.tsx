@@ -1,15 +1,24 @@
 "use client";
+// TODO: проверка на прохождение первичного тестирования
 import { motion } from "framer-motion";
 import TextareaAutosize from "react-textarea-autosize";
 import host from "@/shared/host";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
-import { ArrowDown, ArrowUp, Globe, Trash2, X } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  BookOpenIcon,
+  Globe,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 import fetcher from "@/shared/api/getFetcher";
 import clearHistory from "./api/clearHistory";
 import { ChatMessages, ChatProps, HistoryRes } from "./types";
+import Testing from "../Testing/Testing";
 
 export default function Chat({ closeAction: close }: ChatProps) {
   const {
@@ -31,6 +40,7 @@ export default function Chat({ closeAction: close }: ChatProps) {
   // const [visible, setVisible] = useState(true);
   const [showScrollDown, setShowScrollDown] = useState(false);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [showTesting, setShowTesting] = useState<boolean>(false);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -136,30 +146,33 @@ export default function Chat({ closeAction: close }: ChatProps) {
   };
   return (
     <div className="flex relative flex-col w-full h-full border-l bg-app-bg border-divider-color">
-      {" "}
+      <Testing
+        isOpen={showTesting}
+        onCloseAction={() => setShowTesting(false)}
+      />
       {showModal && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-40"
+          className="flex fixed inset-0 z-40 justify-center items-center bg-black/50"
         >
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-80">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+          <div className="p-6 w-80 bg-white rounded-lg shadow-lg dark:bg-gray-800">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
               Подтвердите действие
             </h3>
             <p className="mb-6 text-gray-700 dark:text-gray-300">
               Вы уверены, что хотите удалить весь чат? Это действие необратимо.
             </p>
-            <div className="flex justify-end gap-3">
+            <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="py-2 px-4 text-gray-700 rounded-lg border border-gray-300 dark:text-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 Отмена
               </button>
               <button
                 onClick={confirmClear}
-                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+                className="py-2 px-4 text-white bg-red-600 rounded-lg hover:bg-red-700"
               >
                 Удалить
               </button>
@@ -175,15 +188,23 @@ export default function Chat({ closeAction: close }: ChatProps) {
           onClick={() => {
             setShowModal(true);
           }}
-          className="cursor-pointer hover:bg-gray-color-7 group rounded-sm transition-all duration-300 ease p-1"
+          className="p-1 rounded-sm transition-all duration-300 cursor-pointer group ease hover:bg-gray-color-7"
         >
-          <Trash2 className="text-text-color sm:w-[24px] sm:h-[24px] w-[18px] h-[18px]" />
+          <Trash2 className="text-text-color w-[18px] h-[18px] sm:w-[24px] sm:h-[24px]" />
         </button>
         <button
-          className="cursor-pointer hover:bg-gray-color-7 group rounded-sm transition-all duration-300 ease p-1"
+          className="p-1 rounded-sm transition-all duration-300 cursor-pointer group ease hover:bg-gray-color-7"
           onClick={close}
         >
-          <X className="text-text-color sm:w-[24px] sm:h-[24px] w-[18px] h-[18px]" />
+          <X className="text-text-color w-[18px] h-[18px] sm:w-[24px] sm:h-[24px]" />
+        </button>
+        <button
+          className="p-1 rounded-sm transition-all duration-300 cursor-pointer group ease hover:bg-gray-color-7"
+          onClick={() => {
+            setShowTesting(true);
+          }}
+        >
+          <BookOpenIcon className="text-text-color w-[18px] h-[18px] sm:w-[24px] sm:h-[24px]" />
         </button>
       </div>
       <div
