@@ -19,8 +19,23 @@ import fetcher from "@/shared/api/getFetcher";
 import clearHistory from "./api/clearHistory";
 import { ChatMessages, ChatProps, HistoryRes } from "./types";
 import Testing from "../Testing/Testing";
+import { useParams } from "next/navigation";
 
 export default function Chat({ closeAction: close }: ChatProps) {
+  const { disciplineLink } = useParams<{ disciplineLink: string }>();
+  const { data: historyTest } = useSWR(
+    `${host}/tests/history?link=${encodeURIComponent(disciplineLink)}`,
+    fetcher,
+  );
+  const [firstTest, setFirstTest] = useState<boolean>(false);
+  useEffect(() => {
+    if (historyTest.error) {
+      setFirstTest(false);
+    } else {
+      setFirstTest(true);
+    }
+  }, [firstTest, historyTest]);
+
   const {
     data: history,
     error,
@@ -147,6 +162,7 @@ export default function Chat({ closeAction: close }: ChatProps) {
   return (
     <div className="flex relative flex-col w-full h-full border-l bg-app-bg border-divider-color">
       <Testing
+        firstTest={firstTest}
         isOpen={showTesting}
         onCloseAction={() => setShowTesting(false)}
       />
@@ -255,6 +271,7 @@ export default function Chat({ closeAction: close }: ChatProps) {
         </button>
         <div className="flex flex-col gap-y-1 justify-between p-3 w-full rounded-3xl border h-fit bg-element-bg text-text-color border-divider-color">
           <TextareaAutosize
+            disabled={firstTest}
             minRows={1}
             maxRows={6}
             value={message}

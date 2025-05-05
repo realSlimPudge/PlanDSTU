@@ -6,12 +6,14 @@ import { useState, useMemo } from "react";
 import useSWR from "swr";
 import { TestingProps, TestResponse } from "./types";
 import QuestionCard from "./QuestionCard";
-import fetcher from "@/shared/api/getFetcher";
 import host from "@/shared/host";
+import fetcher from "@/shared/api/getFetcher";
+import { useParams } from "next/navigation";
 
 export default function Testing({ isOpen, onCloseAction }: TestingProps) {
+  const { disciplineLink } = useParams<{ disciplineLink: string }>();
   const { data, isLoading } = useSWR<TestResponse>(
-    `${host}/tests/first-test`,
+    `${host}/tests/first-test?discipline_id=${encodeURIComponent(disciplineLink)}`,
     fetcher,
   );
 
