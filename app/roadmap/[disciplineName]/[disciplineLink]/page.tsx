@@ -20,6 +20,7 @@ import useSWR from "swr";
 import "@xyflow/react/dist/style.css";
 import CategoryNode from "@/features/Roadmap/Nodes/CategoryNode";
 import TopicNode from "@/features/Roadmap/Nodes/TopicNode";
+import { useSelectedNodes } from "@/features/Roadmap/Nodes/SelectedNodesContext";
 
 export default function RoadmapPage() {
   const { disciplineName, disciplineLink } = useParams<{
@@ -36,6 +37,7 @@ export default function RoadmapPage() {
   } = useSWR<RoadmapType>(
     `${host}/parser/roadmap/${decodedName}/${disciplineLink}`,
     fetcher,
+    { revalidateOnFocus: false, refreshInterval: 0 },
   );
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
@@ -109,6 +111,13 @@ export default function RoadmapPage() {
     setEdges(newEdges);
   }, [roadmap, setNodes, setEdges]);
 
+  //Обработчик клика на node
+  const { toggleNode } = useSelectedNodes();
+  const handleNodeClick = (e: React.MouseEvent, node: Node) => {
+    const nodeName: string = node.data.label as string;
+    toggleNode(nodeName);
+  };
+
   if (error) {
     return (
       <section className="sm:w-[70%] w-[85%] mx-auto h-screen flex items-center justify-center">
@@ -130,9 +139,9 @@ export default function RoadmapPage() {
     );
   }
 
-  if (isLoading || !roadmap) {
+  if (isLoading) {
     return (
-      <div className="w-fit h-fit absolute transform translate-y-[-50%] translate-x-[-50%] top-[50%] left-[50%]">
+      <div className="flex justify-center items-center w-screen h-screen z-60">
         <ListsAnimation>
           <div className="w-10 h-10 rounded-full animate-spin border-3 border-primary-color border-b-transparent"></div>
         </ListsAnimation>
@@ -140,7 +149,7 @@ export default function RoadmapPage() {
     );
   }
 
-  if (!isLoading && roadmap.categories.length === 0) {
+  if (!isLoading && roadmap && roadmap.categories.length === 0) {
     return (
       <div className="sm:w-[70%] w-[85%] mx-auto h-screen flex items-center justify-center">
         <ListsAnimation>
@@ -174,6 +183,7 @@ export default function RoadmapPage() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
+        onNodeClick={handleNodeClick}
       >
         <Controls
           style={{ background: "blue" }}

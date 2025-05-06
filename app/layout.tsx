@@ -3,6 +3,7 @@ import { Golos_Text } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/features/Providers/themeProvider";
 import Header from "@/widgets/Header/Header";
+import { SelectedNodesProvider } from "@/features/Roadmap/Nodes/SelectedNodesContext";
 
 const golos = Golos_Text({
   weight: ["400", "500", "600", "700", "800", "900"],
@@ -28,10 +29,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="min-h-screen bg-app-bg">
-            <Header />
-            <main>{children}</main>
-          </div>
+          <SelectedNodesProvider>
+            <div className="min-h-screen bg-app-bg">
+              <Header />
+              <main>{children}</main>
+            </div>
+          </SelectedNodesProvider>
         </ThemeProvider>
       </body>
     </html>

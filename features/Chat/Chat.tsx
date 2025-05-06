@@ -18,33 +18,17 @@ import useSWR from "swr";
 import fetcher from "@/shared/api/getFetcher";
 import clearHistory from "./api/clearHistory";
 import { ChatMessages, ChatProps, HistoryRes } from "./types";
-import Testing from "../Testing/Testing";
-import { useParams } from "next/navigation";
+import { useSelectedNodes } from "../Roadmap/Nodes/SelectedNodesContext";
 
 export default function Chat({ closeAction: close }: ChatProps) {
-  const { disciplineLink } = useParams<{ disciplineLink: string }>();
-
-  //История первичного тестирования
-  const { data: historyTest } = useSWR(
-    `${host}/tests/history?link=${encodeURIComponent(disciplineLink)}`,
-    fetcher,
-    { revalidateOnFocus: false },
-  );
-  const [needFirstTest, setNeedFirstTest] = useState<boolean>(false);
-  useEffect(() => {
-    if (historyTest?.error) {
-      setNeedFirstTest(true);
-    } else {
-      setNeedFirstTest(false);
-    }
-  }, [needFirstTest, historyTest]);
-
   const {
     data: history,
     error,
     isLoading,
     mutate,
   } = useSWR<HistoryRes>(`${host}/llm/history`, fetcher);
+
+  const { selectedNodes } = useSelectedNodes();
 
   const [search, setSearch] = useState<boolean>(false);
   const [canSend, setCanSend] = useState<boolean>(false);
@@ -58,7 +42,6 @@ export default function Chat({ closeAction: close }: ChatProps) {
   // const [visible, setVisible] = useState(true);
   const [showScrollDown, setShowScrollDown] = useState(false);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [showTesting, setShowTesting] = useState<boolean>(false);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -164,13 +147,6 @@ export default function Chat({ closeAction: close }: ChatProps) {
   };
   return (
     <div className="flex relative flex-col w-full h-full border-l bg-app-bg border-divider-color">
-      {needFirstTest && (
-        <Testing
-          needFirstTest={needFirstTest}
-          isOpen={showTesting}
-          onCloseAction={() => setShowTesting(false)}
-        />
-      )}
       {showModal && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -219,16 +195,14 @@ export default function Chat({ closeAction: close }: ChatProps) {
         >
           <X className="text-text-color w-[18px] h-[18px] sm:w-[24px] sm:h-[24px]" />
         </button>
-        {needFirstTest && (
-          <button
-            className="p-1 rounded-sm transition-all duration-300 cursor-pointer group ease hover:bg-gray-color-7"
-            onClick={() => {
-              setShowTesting(true);
-            }}
-          >
-            <BookOpenIcon className="text-text-color w-[18px] h-[18px] sm:w-[24px] sm:h-[24px]" />
-          </button>
-        )}
+        <button className="relative p-1 rounded-sm transition-all duration-300 cursor-pointer group ease hover:bg-gray-color-7">
+          <BookOpenIcon className="text-text-color w-[18px] h-[18px] sm:w-[24px] sm:h-[24px]" />
+          {selectedNodes.length > 0 && (
+            <div className="flex absolute top-0 right-0 justify-center items-center text-sm rounded-full w-[18px] h-[18px] text-text-contrast-color bg-primary-color">
+              {selectedNodes.length}
+            </div>
+          )}
+        </button>
       </div>
       <div
         className="flex overflow-auto flex-col p-4 pt-20 pb-40 space-y-4 h-11/12"
@@ -279,14 +253,13 @@ export default function Chat({ closeAction: close }: ChatProps) {
         </button>
         <div className="flex flex-col gap-y-1 justify-between p-3 w-full rounded-3xl border h-fit bg-element-bg text-text-color border-divider-color">
           <TextareaAutosize
-            disabled={needFirstTest}
             minRows={1}
             maxRows={6}
             value={message}
             onChange={(e) => {
               setMessage(e.target.value);
             }}
-            placeholder={`${needFirstTest ? "Пройдите первичное тестирование" : "Введите текст..."}`}
+            placeholder="Введите текст..."
             className="overflow-auto p-2 w-full rounded-lg outline-none resize-none bg-element-bg text-text-color border-divider-color"
           />
           <div className="flex justify-between items-center w-full">
