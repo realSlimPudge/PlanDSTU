@@ -23,18 +23,21 @@ import { useParams } from "next/navigation";
 
 export default function Chat({ closeAction: close }: ChatProps) {
   const { disciplineLink } = useParams<{ disciplineLink: string }>();
+
+  //История первичного тестирования
   const { data: historyTest } = useSWR(
     `${host}/tests/history?link=${encodeURIComponent(disciplineLink)}`,
     fetcher,
+    { revalidateOnFocus: false },
   );
-  const [firstTest, setFirstTest] = useState<boolean>(false);
+  const [needFirstTest, setNeedFirstTest] = useState<boolean>(false);
   useEffect(() => {
-    if (historyTest.error) {
-      setFirstTest(false);
+    if (historyTest?.error) {
+      setNeedFirstTest(true);
     } else {
-      setFirstTest(true);
+      setNeedFirstTest(false);
     }
-  }, [firstTest, historyTest]);
+  }, [needFirstTest, historyTest]);
 
   const {
     data: history,
@@ -161,11 +164,13 @@ export default function Chat({ closeAction: close }: ChatProps) {
   };
   return (
     <div className="flex relative flex-col w-full h-full border-l bg-app-bg border-divider-color">
-      <Testing
-        firstTest={firstTest}
-        isOpen={showTesting}
-        onCloseAction={() => setShowTesting(false)}
-      />
+      {needFirstTest && (
+        <Testing
+          needFirstTest={needFirstTest}
+          isOpen={showTesting}
+          onCloseAction={() => setShowTesting(false)}
+        />
+      )}
       {showModal && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -214,14 +219,16 @@ export default function Chat({ closeAction: close }: ChatProps) {
         >
           <X className="text-text-color w-[18px] h-[18px] sm:w-[24px] sm:h-[24px]" />
         </button>
-        <button
-          className="p-1 rounded-sm transition-all duration-300 cursor-pointer group ease hover:bg-gray-color-7"
-          onClick={() => {
-            setShowTesting(true);
-          }}
-        >
-          <BookOpenIcon className="text-text-color w-[18px] h-[18px] sm:w-[24px] sm:h-[24px]" />
-        </button>
+        {needFirstTest && (
+          <button
+            className="p-1 rounded-sm transition-all duration-300 cursor-pointer group ease hover:bg-gray-color-7"
+            onClick={() => {
+              setShowTesting(true);
+            }}
+          >
+            <BookOpenIcon className="text-text-color w-[18px] h-[18px] sm:w-[24px] sm:h-[24px]" />
+          </button>
+        )}
       </div>
       <div
         className="flex overflow-auto flex-col p-4 pt-20 pb-40 space-y-4 h-11/12"
@@ -249,10 +256,11 @@ export default function Chat({ closeAction: close }: ChatProps) {
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`px-4 py-2 rounded-lg max-w-[80%] w-fit ${msg.type === "human"
+            className={`px-4 py-2 rounded-lg max-w-[80%] w-fit ${
+              msg.type === "human"
                 ? "bg-primary-color text-text-contrast-color self-end"
                 : "bg-element-bg text-text-color self-start"
-              }`}
+            }`}
           >
             <ReactMarkdown remarkPlugins={[remarkBreaks]}>
               {msg.content}
@@ -271,14 +279,14 @@ export default function Chat({ closeAction: close }: ChatProps) {
         </button>
         <div className="flex flex-col gap-y-1 justify-between p-3 w-full rounded-3xl border h-fit bg-element-bg text-text-color border-divider-color">
           <TextareaAutosize
-            disabled={firstTest}
+            disabled={needFirstTest}
             minRows={1}
             maxRows={6}
             value={message}
             onChange={(e) => {
               setMessage(e.target.value);
             }}
-            placeholder="Введите запрос..."
+            placeholder={`${needFirstTest ? "Пройдите первичное тестирование" : "Введите текст..."}`}
             className="overflow-auto p-2 w-full rounded-lg outline-none resize-none bg-element-bg text-text-color border-divider-color"
           />
           <div className="flex justify-between items-center w-full">

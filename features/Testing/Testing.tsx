@@ -10,11 +10,18 @@ import host from "@/shared/host";
 import fetcher from "@/shared/api/getFetcher";
 import { useParams } from "next/navigation";
 
-export default function Testing({ isOpen, onCloseAction }: TestingProps) {
+export default function Testing({
+  isOpen,
+  onCloseAction,
+  needFirstTest,
+}: TestingProps) {
   const { disciplineLink } = useParams<{ disciplineLink: string }>();
   const { data, isLoading } = useSWR<TestResponse>(
-    `${host}/tests/first-test?discipline_id=${encodeURIComponent(disciplineLink)}`,
+    needFirstTest
+      ? `${host}/tests/first-test?discipline_id=${encodeURIComponent(disciplineLink)}`
+      : null,
     fetcher,
+    { revalidateOnFocus: false },
   );
 
   const [currentIndex, setCurrentIndex] = useState<number>(0);

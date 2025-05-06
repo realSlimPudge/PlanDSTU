@@ -1,7 +1,7 @@
 export type TestingProps = {
   isOpen: boolean;
   onCloseAction: () => void;
-  firstTest: boolean;
+  needFirstTest: boolean;
 };
 
 export type TestResponse = {
