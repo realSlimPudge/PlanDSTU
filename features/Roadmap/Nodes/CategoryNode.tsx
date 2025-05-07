@@ -1,6 +1,5 @@
 "use client";
 import { Handle, Node, NodeProps, Position } from "@xyflow/react";
-import { useState } from "react";
 
 export type CategoryNode = Node<{
   label: string;
@@ -10,16 +9,11 @@ export type CategoryNode = Node<{
 }>;
 
 export default function CategoryNode({ data }: NodeProps<CategoryNode>) {
-  const [selected, setSelected] = useState<boolean>(false);
-  function toggleSelect() {
-    setSelected((p) => !p);
-  }
   return (
     <>
       {!data.isFirst && <Handle type="target" position={Position.Left} />}
       <div
-        onClick={toggleSelect}
-        className={`py-3 px-2 rounded-2xl border-2 shadow-md w-[200px] border-primary-color bg-primary-color ${selected && "border-text-contrast-color animate-pulse"} `}
+        className={`py-3 px-2 rounded-2xl border-2 shadow-md w-[200px] border-primary-color bg-primary-color  `}
       >
         <h5 className="font-bold text-center text-text-contrast-color">
           {data.label}

@@ -26,7 +26,10 @@ export default function Chat({ closeAction: close }: ChatProps) {
     error,
     isLoading,
     mutate,
-  } = useSWR<HistoryRes>(`${host}/llm/history`, fetcher);
+  } = useSWR<HistoryRes>(`${host}/llm/history`, fetcher, {
+    revalidateOnFocus: false,
+    refreshInterval: 0,
+  });
 
   const { selectedNodes } = useSelectedNodes();
 
@@ -199,11 +202,8 @@ export default function Chat({ closeAction: close }: ChatProps) {
           <BookOpenIcon className="text-text-color w-[18px] h-[18px] sm:w-[24px] sm:h-[24px]" />
           {selectedNodes.length > 0 && (
             <>
-              <span className="rounded-full z-30 absolute top-[3px] right-[3px] sm:w-[14px] w-[10px] h-[10px] sm:h-[14px] animate-ping bg-primary-color"></span>
-              <div
-                className="flex absolute top-0 z-40 right-0 justify-center items-center
-              sm:text-sm text-[10px] rounded-full sm:w-[18px] w-[14px] h-[14px] sm:h-[18px] text-text-contrast-color bg-primary-color"
-              >
+              <span className="absolute z-30 rounded-full animate-ping top-[2px] right-[2px] w-[10px] h-[10px] bg-primary-color sm:w-[14px] sm:h-[14px]"></span>
+              <div className="flex absolute top-0 right-0 z-40 justify-center items-center rounded-full sm:text-sm text-[10px] w-[14px] h-[14px] text-text-contrast-color bg-primary-color sm:w-[18px] sm:h-[18px]">
                 {selectedNodes.length}
               </div>
             </>
@@ -236,11 +236,10 @@ export default function Chat({ closeAction: close }: ChatProps) {
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`px-4 py-2 rounded-lg max-w-[80%] w-fit ${
-              msg.type === "human"
+            className={`px-4 py-2 rounded-lg max-w-[80%] w-fit ${msg.type === "human"
                 ? "bg-primary-color text-text-contrast-color self-end"
                 : "bg-element-bg text-text-color self-start"
-            }`}
+              }`}
           >
             <ReactMarkdown remarkPlugins={[remarkBreaks]}>
               {msg.content}

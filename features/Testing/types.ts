@@ -3,6 +3,7 @@ export type TestingProps = {
   onCloseAction: () => void;
   test: Theme[] | null;
   testId: string | null;
+  revalidateAction: () => void;
 };
 
 export type TestResponse = {
@@ -31,7 +32,7 @@ export type FirstTest = {
 };
 
 export type RoadmapHistory = {
-  BlocksJSONB: null;
+  BlocksJSONB: Blocks;
   CreatedAt: string;
   DisciplineID: number;
   ID: string;
@@ -48,3 +49,13 @@ export type Tests = {
   RoadmapHistoryID: string;
   Status: "pending";
 };
+
+export type Blocks = {
+  blocks: Grade[];
+};
+
+export type Grade = {
+  name: string;
+  value: number;
+};
+// test_results = [{ name: string, grade: number }, {}, {}...]

@@ -16,20 +16,25 @@ export default function RoadmapLayout({
   //Закрытие чата при заходе на страницу
   const [chatOpen, setChatOpen] = useState<boolean>(false);
   const pathname = usePathname();
-  const { clearNodes } = useSelectedNodes();
+  const { clearNodes, clearNodesGrade } = useSelectedNodes();
 
   //Закрытие чата и очистка при смене пути
   useEffect(() => {
     setChatOpen(false);
     clearNodes();
-  }, [pathname, clearNodes]);
+    clearNodesGrade();
+  }, [pathname, clearNodes, clearNodesGrade]);
 
   //История первичного тестирования
   const { disciplineLink } = useParams<{ disciplineLink: string }>();
   const [needFirstTest, setNeedFirstTest] = useState<boolean>(false);
   const [showTestModal, setShowTestModal] = useState<boolean>(false);
 
-  const { data: historyTest, isLoading: historyLoading } = useSWR<FirstTest>(
+  const {
+    data: historyTest,
+    isLoading: historyLoading,
+    mutate,
+  } = useSWR<FirstTest>(
     `${host}/tests/history?link=${encodeURIComponent(disciplineLink)}`,
     fetcher,
     { revalidateOnFocus: false },
@@ -56,6 +61,17 @@ export default function RoadmapLayout({
   const [test, setTest] = useState<Theme[] | null>(null);
   const [testId, setTestId] = useState<string | null>(null);
 
+  const { setNodes } = useSelectedNodes();
+
+  useEffect(() => {
+    if (historyTest?.roadmap_history?.BlocksJSONB) {
+      const blocks = historyTest.roadmap_history.BlocksJSONB.blocks;
+      if (Array.isArray(blocks)) {
+        setNodes(blocks);
+      }
+    }
+  }, [historyTest, setNodes]);
+
   useEffect(() => {
     if (
       historyTest?.roadmap_history?.Tests?.[0]?.DetailsJSONB?.test &&
@@ -69,6 +85,11 @@ export default function RoadmapLayout({
     }
   }, [historyTest, historyLoading]);
 
+  //Ревалидация после отправки ответов
+  function revalidate() {
+    mutate();
+  }
+
   return (
     <div className="overflow-hidden relative">
       <FirstTesting
@@ -76,6 +97,7 @@ export default function RoadmapLayout({
         isOpen={showTestModal}
         test={test}
         testId={testId}
+        revalidateAction={revalidate}
       />
       <div
         className={` transition duration-300 ease absolute z-20  transform h-[calc(100vh_-_70px)] top-[70px] md:w-2/5 w-full 
@@ -87,7 +109,9 @@ export default function RoadmapLayout({
         onClick={needFirstTest ? handleTestModalOpen : handleChatOpen}
         className={`absolute right-3 bottom-3 z-10 p-4 rounded-3xl sm:p-6 cursor-pointer ${needFirstTest ? "bg-gray-color-5 shadow-md" : "bg-primary-color "}`}
       >
-        <Bot className="text-text-contrast-color" />
+        <Bot
+          className={`${needFirstTest ? "text-text-color" : "text-text-contrast-color "}`}
+        />
       </button>
       {children}
     </div>

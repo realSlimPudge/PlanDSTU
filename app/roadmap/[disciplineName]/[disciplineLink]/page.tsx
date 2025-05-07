@@ -114,8 +114,10 @@ export default function RoadmapPage() {
   //Обработчик клика на node
   const { toggleNode } = useSelectedNodes();
   const handleNodeClick = (e: React.MouseEvent, node: Node) => {
-    const nodeName: string = node.data.label as string;
-    toggleNode(nodeName);
+    if (node.type === "topicNode") {
+      const nodeName: string = node.data.label as string;
+      toggleNode(nodeName);
+    }
   };
 
   if (error) {

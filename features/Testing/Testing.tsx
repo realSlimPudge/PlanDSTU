@@ -14,6 +14,7 @@ export default function FirstTesting({
   onCloseAction,
   test,
   testId,
+  revalidateAction,
 }: TestingProps) {
   //Проверка, есть ли тест
   const [haveTest, setHaveTest] = useState<boolean>(!!test);
@@ -40,6 +41,13 @@ export default function FirstTesting({
   //Выбор данных либо с ответа либо с пропса
   const [currentTest, setCurrentTest] = useState(test || null);
   const [currentTestId, setCurrentTestId] = useState(testId || null);
+
+  //Синхронизация testId с пропсом
+  useEffect(() => {
+    if (testId) {
+      setCurrentTestId(testId);
+    }
+  }, [testId]);
 
   //синхронизация с пропсом
   useEffect(() => {
@@ -136,6 +144,7 @@ export default function FirstTesting({
     } finally {
       setUploading(false);
       onCloseAction();
+      revalidateAction();
     }
   };
 
@@ -161,24 +170,24 @@ export default function FirstTesting({
             className="p-6 py-4 w-3/4 bg-white rounded-lg shadow-lg sm:w-2/5 dark:bg-gray-800"
           >
             {!haveTest ? (
-              <div className="flex gap-y-4 flex-col relative justify-between items-center">
-                <p className="text-text-color text-xl hyphens-auto">
+              <div className="flex relative flex-col gap-y-4 justify-between items-center">
+                <p className="text-xl text-text-color hyphens-auto">
                   Для использования чата пройдите первичное тестирование
                 </p>
-                <div className="flex md:flex-row flex-col-reverse sm:justify-center justify-between gap-x-2 gap-y-2 items-center">
+                <div className="flex flex-col-reverse gap-x-2 gap-y-2 justify-between items-center sm:justify-center md:flex-row">
                   <button
                     onClick={onCloseAction}
-                    className="py-2 px-4 text-gray-700 rounded-lg border cursor-pointer border-gray-300 dark:text-gray-200 dark:border-gray-600 hover:bg-gray-100 disabled:opacity-50 dark:hover:bg-gray-700"
+                    className="py-2 px-4 text-gray-700 rounded-lg border border-gray-300 cursor-pointer dark:text-gray-200 dark:border-gray-600 hover:bg-gray-100 disabled:opacity-50 dark:hover:bg-gray-700"
                     aria-label="Закрыть"
                   >
                     Закрыть
                   </button>
                   <button
-                    className="flex gap-x-2 justify-between items-center py-2 px-4 border hover:bg-primary-light-color border-primary-color outline-none text-white rounded-md cursor-pointer disabled:opacity-50 bg-primary-color"
+                    className="flex gap-x-2 justify-between items-center py-2 px-4 text-white rounded-md border cursor-pointer outline-none disabled:opacity-50 border-primary-color bg-primary-color hover:bg-primary-light-color"
                     onClick={handleRequestTest}
                   >
                     {isLoading && (
-                      <div className="w-[10px] h-[10px] border-2 border-text-contrast-color border-b-transparent rounded-full animate-spin"></div>
+                      <div className="rounded-full border-2 animate-spin w-[10px] h-[10px] border-text-contrast-color border-b-transparent"></div>
                     )}
                     Запросить тестирование
                   </button>
@@ -232,10 +241,10 @@ export default function FirstTesting({
                     <button
                       onClick={handleSubmit}
                       disabled={!allAnswered || uploading}
-                      className="flex justify-between items-center gap-x-2 py-2 px-4 text-white rounded-md disabled:opacity-50 bg-primary-color"
+                      className="flex gap-x-2 justify-between items-center py-2 px-4 text-white rounded-md disabled:opacity-50 bg-primary-color"
                     >
                       {uploading && (
-                        <div className="w-[10px] h-[10px] border-2 border-text-contrast-color border-b-transparent rounded-full animate-spin"></div>
+                        <div className="rounded-full border-2 animate-spin w-[10px] h-[10px] border-text-contrast-color border-b-transparent"></div>
                       )}
                       Отправить
                     </button>
