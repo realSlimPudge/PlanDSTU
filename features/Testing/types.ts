@@ -1,12 +1,13 @@
 export type TestingProps = {
-  isOpen?: boolean;
-  onCloseAction?: () => void;
-  needFirstTest?: boolean;
+  isOpen: boolean;
+  onCloseAction: () => void;
   test: Theme[] | null;
+  testId: string | null;
 };
 
 export type TestResponse = {
   test: Theme[];
+  id: string;
 };
 
 export type Theme = {

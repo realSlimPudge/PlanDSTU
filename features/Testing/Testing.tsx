@@ -13,13 +13,14 @@ export default function FirstTesting({
   isOpen,
   onCloseAction,
   test,
+  testId,
 }: TestingProps) {
   //Проверка, есть ли тест
   const [haveTest, setHaveTest] = useState<boolean>(!!test);
   const [requested, setRequested] = useState<boolean>(false);
   const { disciplineLink } = useParams<{ disciplineLink: string }>();
 
-  const {} = useSWR<TestResponse>(
+  const { isLoading } = useSWR<TestResponse>(
     !haveTest && requested
       ? `${host}/tests/first-test?discipline_id=${encodeURIComponent(disciplineLink)}`
       : null,
@@ -27,13 +28,18 @@ export default function FirstTesting({
     {
       revalidateOnFocus: false,
       onSuccess: (data) => {
+        setCurrentTestId(data.id);
         setCurrentTest(data.test);
       },
     },
   );
 
+  //Загрузка при отправке ответов
+  const [uploading, setUploading] = useState<boolean>(false);
+
   //Выбор данных либо с ответа либо с пропса
   const [currentTest, setCurrentTest] = useState(test || null);
+  const [currentTestId, setCurrentTestId] = useState(testId || null);
 
   //синхронизация с пропсом
   useEffect(() => {
@@ -117,10 +123,24 @@ export default function FirstTesting({
     setCurrentIndex((idx) => Math.min(totalQuestions - 1 || 0, idx + 1));
   };
 
-  const handleSubmit = () => {
-    //TODO: отправку формы когда бекендер ебаный доделает
+  const submitAnswers = async () => {
+    const body = { test_id: currentTestId, answers };
+    try {
+      setUploading(true);
+      const res = await fetch(`${host}/tests/answers`, {
+        method: "POST",
+        credentials: "include",
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error("Попробуйте позже");
+    } finally {
+      setUploading(false);
+      onCloseAction();
+    }
+  };
 
-    console.log("Submitted answers:", answers);
+  const handleSubmit = () => {
+    submitAnswers();
   };
 
   if (!isOpen) return null;
@@ -138,13 +158,31 @@ export default function FirstTesting({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="p-6 w-3/4 bg-white rounded-lg shadow-lg sm:w-2/5 dark:bg-gray-800"
+            className="p-6 py-4 w-3/4 bg-white rounded-lg shadow-lg sm:w-2/5 dark:bg-gray-800"
           >
             {!haveTest ? (
-              <div className="flex justify-between items-center mb-4">
-                <button className="z-60" onClick={handleRequestTest}>
-                  Запросить тестирование
-                </button>
+              <div className="flex gap-y-4 flex-col relative justify-between items-center">
+                <p className="text-text-color text-xl hyphens-auto">
+                  Для использования чата пройдите первичное тестирование
+                </p>
+                <div className="flex md:flex-row flex-col-reverse sm:justify-center justify-between gap-x-2 gap-y-2 items-center">
+                  <button
+                    onClick={onCloseAction}
+                    className="py-2 px-4 text-gray-700 rounded-lg border cursor-pointer border-gray-300 dark:text-gray-200 dark:border-gray-600 hover:bg-gray-100 disabled:opacity-50 dark:hover:bg-gray-700"
+                    aria-label="Закрыть"
+                  >
+                    Закрыть
+                  </button>
+                  <button
+                    className="flex gap-x-2 justify-between items-center py-2 px-4 border hover:bg-primary-light-color border-primary-color outline-none text-white rounded-md cursor-pointer disabled:opacity-50 bg-primary-color"
+                    onClick={handleRequestTest}
+                  >
+                    {isLoading && (
+                      <div className="w-[10px] h-[10px] border-2 border-text-contrast-color border-b-transparent rounded-full animate-spin"></div>
+                    )}
+                    Запросить тестирование
+                  </button>
+                </div>
               </div>
             ) : (
               <>
@@ -193,9 +231,12 @@ export default function FirstTesting({
                   ) : (
                     <button
                       onClick={handleSubmit}
-                      disabled={!allAnswered}
-                      className="py-2 px-4 text-white rounded-md disabled:opacity-50 bg-primary-color"
+                      disabled={!allAnswered || uploading}
+                      className="flex justify-between items-center gap-x-2 py-2 px-4 text-white rounded-md disabled:opacity-50 bg-primary-color"
                     >
+                      {uploading && (
+                        <div className="w-[10px] h-[10px] border-2 border-text-contrast-color border-b-transparent rounded-full animate-spin"></div>
+                      )}
                       Отправить
                     </button>
                   )}

@@ -198,9 +198,15 @@ export default function Chat({ closeAction: close }: ChatProps) {
         <button className="relative p-1 rounded-sm transition-all duration-300 cursor-pointer group ease hover:bg-gray-color-7">
           <BookOpenIcon className="text-text-color w-[18px] h-[18px] sm:w-[24px] sm:h-[24px]" />
           {selectedNodes.length > 0 && (
-            <div className="flex absolute top-0 right-0 justify-center items-center text-sm rounded-full w-[18px] h-[18px] text-text-contrast-color bg-primary-color">
-              {selectedNodes.length}
-            </div>
+            <>
+              <span className="rounded-full z-30 absolute top-[3px] right-[3px] sm:w-[14px] w-[10px] h-[10px] sm:h-[14px] animate-ping bg-primary-color"></span>
+              <div
+                className="flex absolute top-0 z-40 right-0 justify-center items-center
+              sm:text-sm text-[10px] rounded-full sm:w-[18px] w-[14px] h-[14px] sm:h-[18px] text-text-contrast-color bg-primary-color"
+              >
+                {selectedNodes.length}
+              </div>
+            </>
           )}
         </button>
       </div>

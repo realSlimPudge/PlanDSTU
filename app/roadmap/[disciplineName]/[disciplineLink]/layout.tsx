@@ -54,14 +54,17 @@ export default function RoadmapLayout({
 
   //Установка теста, если он есть в истории
   const [test, setTest] = useState<Theme[] | null>(null);
+  const [testId, setTestId] = useState<string | null>(null);
 
   useEffect(() => {
     if (
       historyTest?.roadmap_history?.Tests?.[0]?.DetailsJSONB?.test &&
       !historyLoading
     ) {
+      setTestId(historyTest?.roadmap_history.Tests[0].ID);
       setTest(historyTest?.roadmap_history.Tests[0].DetailsJSONB.test);
     } else {
+      setTestId(null);
       setTest(null);
     }
   }, [historyTest, historyLoading]);
@@ -69,10 +72,10 @@ export default function RoadmapLayout({
   return (
     <div className="overflow-hidden relative">
       <FirstTesting
-        needFirstTest={needFirstTest}
         onCloseAction={handleTestModalOpen}
         isOpen={showTestModal}
         test={test}
+        testId={testId}
       />
       <div
         className={` transition duration-300 ease absolute z-20  transform h-[calc(100vh_-_70px)] top-[70px] md:w-2/5 w-full 
