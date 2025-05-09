@@ -13,7 +13,7 @@ export default function CategoryNode({ data }: NodeProps<CategoryNode>) {
     <>
       {!data.isFirst && <Handle type="target" position={Position.Left} />}
       <div
-        className={`py-3 px-2 rounded-2xl border-2 shadow-md w-[200px] border-primary-color bg-primary-color  `}
+        className={`py-3 px-2 rounded-2xl border-2 shadow-xl w-[240px] border-primary-color bg-primary-color  `}
       >
         <h5 className="font-bold text-center text-text-contrast-color">
           {data.label}

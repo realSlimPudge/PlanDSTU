@@ -1,13 +1,7 @@
 "use client";
 
 import { Grade } from "@/features/Testing/types";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 
 type SelectedNodesContextType = {
   //Цвет блоков
@@ -21,6 +15,10 @@ type SelectedNodesContextType = {
   selectedNodes: string[];
   toggleNode: (nodeName: string) => void;
   clearNodes: () => void;
+
+  //Все блоки
+  allThemes: string[];
+  addAllThemes: (themes: string[]) => void;
 };
 
 const SelectedNodesContext = createContext<SelectedNodesContextType | null>(
@@ -34,6 +32,7 @@ export const SelectedNodesProvider = ({
 }) => {
   const [nodes, setNodes] = useState<Grade[]>([]);
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
+  const [allThemes, setAllThemes] = useState<string[]>([]);
 
   //Выбор блоков
   const toggleNode = useCallback((nodeName: string) => {
@@ -53,9 +52,6 @@ export const SelectedNodesProvider = ({
   }, []);
 
   //Цвет блоков
-  useEffect(() => {
-    console.log(nodes);
-  }, [nodes]);
   const addNode = useCallback((node: Grade) => {
     setNodes((prev) => [...prev, node]);
   }, []);
@@ -74,6 +70,12 @@ export const SelectedNodesProvider = ({
     [nodes],
   );
 
+  //Все темы
+
+  const addAllThemes = (themes: string[]) => {
+    setAllThemes(themes);
+  };
+
   return (
     <SelectedNodesContext.Provider
       value={{
@@ -85,6 +87,8 @@ export const SelectedNodesProvider = ({
         setNodes,
         clearNodesGrade,
         getNodeValue,
+        allThemes,
+        addAllThemes,
       }}
     >
       {children}

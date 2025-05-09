@@ -1,5 +1,4 @@
 "use client";
-// TODO: проверка на прохождение первичного тестирования
 import { motion } from "framer-motion";
 import TextareaAutosize from "react-textarea-autosize";
 import host from "@/shared/host";
@@ -20,7 +19,10 @@ import clearHistory from "./api/clearHistory";
 import { ChatMessages, ChatProps, HistoryRes } from "./types";
 import { useSelectedNodes } from "../Roadmap/Nodes/SelectedNodesContext";
 
-export default function Chat({ closeAction: close }: ChatProps) {
+export default function Chat({
+  closeAction: close,
+  testModalAction,
+}: ChatProps) {
   const {
     data: history,
     error,
@@ -198,7 +200,10 @@ export default function Chat({ closeAction: close }: ChatProps) {
         >
           <X className="text-text-color w-[18px] h-[18px] sm:w-[24px] sm:h-[24px]" />
         </button>
-        <button className="relative p-1 rounded-sm transition-all duration-300 cursor-pointer group ease hover:bg-gray-color-7">
+        <button
+          onClick={testModalAction}
+          className="relative p-1 rounded-sm transition-all duration-300 cursor-pointer group ease hover:bg-gray-color-7"
+        >
           <BookOpenIcon className="text-text-color w-[18px] h-[18px] sm:w-[24px] sm:h-[24px]" />
           {selectedNodes.length > 0 && (
             <>
@@ -236,10 +241,11 @@ export default function Chat({ closeAction: close }: ChatProps) {
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`px-4 py-2 rounded-lg max-w-[80%] w-fit ${msg.type === "human"
-                ? "bg-primary-color text-text-contrast-color self-end"
-                : "bg-element-bg text-text-color self-start"
-              }`}
+            className={`px-4 py-2 rounded-lg w-fit ${
+              msg.type === "human"
+                ? "bg-primary-color text-text-contrast-color self-end max-w-[80%] "
+                : "bg-transparent text-text-color self-start max-w-full"
+            }`}
           >
             <ReactMarkdown remarkPlugins={[remarkBreaks]}>
               {msg.content}
@@ -256,7 +262,7 @@ export default function Chat({ closeAction: close }: ChatProps) {
         >
           <ArrowDown className="text-text-color" size={20} />
         </button>
-        <div className="flex flex-col gap-y-1 justify-between p-3 w-full rounded-3xl border h-fit bg-element-bg text-text-color border-divider-color">
+        <div className="flex flex-col gap-y-1 justify-between p-3 w-full rounded-3xl border transition duration-200 h-fit bg-element-bg ease text-text-color border-divider-color hover:border-primary-light-color">
           <TextareaAutosize
             minRows={1}
             maxRows={6}

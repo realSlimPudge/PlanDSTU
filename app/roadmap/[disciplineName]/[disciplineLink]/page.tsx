@@ -40,6 +40,17 @@ export default function RoadmapPage() {
     { revalidateOnFocus: false, refreshInterval: 0 },
   );
 
+  //Добавление списка всех тем
+  const { addAllThemes } = useSelectedNodes();
+  useEffect(() => {
+    if (roadmap) {
+      const allThemes = roadmap.categories.flatMap(
+        (category) => category.topics,
+      );
+      addAllThemes(allThemes);
+    }
+  }, [roadmap]);
+
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
@@ -63,7 +74,7 @@ export default function RoadmapPage() {
       newNodes.push({
         id: catId,
         position: {
-          x: i * 300,
+          x: i * 320,
           y: 0,
         },
         data: { label: cat.name, isFirst, isLast, topics },
@@ -88,7 +99,7 @@ export default function RoadmapPage() {
         newNodes.push({
           id: topicId,
           position: {
-            x: i * 300,
+            x: i * 320,
             y: (j + 1) * 300,
           },
           data: { label: topic },

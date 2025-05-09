@@ -26,22 +26,31 @@ export default function TopicNode({ data }: NodeProps<TopicNode>) {
   }, [data.label, getNodeValue]);
 
   const nodeClasses = [
-    "py-3 px-2 rounded-2xl border-2 max-h-[150px] shadow-md bg-gray-color-5 w-[200px]",
-    selected && "border-primary-color animate-bounce",
-    grade > 33 && grade < 66 ? "bg-red-900" : "border-gray-color-3",
-    grade > 66 && grade < 99 ? "bg-yellow-600" : "border-gray-color-3",
-    grade === 100 ? "bg-green-700" : "border-gray-color-3",
+    grade >= 0 && grade < 66 ? "bg-red-500" : "",
+    grade > 66 && grade < 99 ? "bg-yellow-400" : "",
+    grade === 100 ? "bg-green-500" : "",
   ]
     .filter(Boolean)
     .join(" ");
   return (
     <>
       <Handle type="target" position={Position.Top} />
-      <div onClick={toggleSelect} className={nodeClasses}>
-        <h5 className="text-center text-text-color">{data.label}</h5>
-        <div className="mt-1 text-xs text-center">
-          Правильных ответов: {grade.toFixed()}%
+      <div
+        onClick={toggleSelect}
+        className={`py-3 px-5 pt-1 rounded-2xl border max-h-[150px] shadow-md transition duration-200 ease
+        bg-gray-color-5 w-[240px] ${selected ? "border-primary-color animate-pulse" : "dark:border-divider-color "}`}
+      >
+        <div className="flex left-0 -top-3 gap-x-1 justify-start items-center my-1 text-xs font-light text-center text-text-2-color bg-gray-color-5">
+          <div
+            className={`size-2 rounded-full 
+            ${nodeClasses}`}
+          ></div>
+          Правильных ответов:{" "}
+          <span className="italic font-medium">{grade.toFixed()}%</span>
         </div>
+        <h5 className="overflow-auto font-semibold text-start text-text-color hyphens-auto max-h-[116px]">
+          {data.label}
+        </h5>
       </div>
     </>
   );

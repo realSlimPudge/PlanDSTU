@@ -1,7 +1,8 @@
 "use client";
 import Chat from "@/features/Chat/Chat";
 import { useSelectedNodes } from "@/features/Roadmap/Nodes/SelectedNodesContext";
-import FirstTesting from "@/features/Testing/Testing";
+import FirstTesting from "@/features/Testing/FirstTesting";
+import Tests from "@/features/Testing/Tests";
 import { FirstTest, Theme } from "@/features/Testing/types";
 import fetcher from "@/shared/api/getFetcher";
 import host from "@/shared/host";
@@ -90,6 +91,13 @@ export default function RoadmapLayout({
     mutate();
   }
 
+  //Обычные тесты
+  const [isTestOpen, setIsTestOpen] = useState<boolean>(false);
+
+  const handleTestOpen = () => {
+    setIsTestOpen((p) => !p);
+  };
+
   return (
     <div className="overflow-hidden relative">
       <FirstTesting
@@ -99,11 +107,12 @@ export default function RoadmapLayout({
         testId={testId}
         revalidateAction={revalidate}
       />
+      <Tests open={isTestOpen} closeAction={handleTestOpen} />
       <div
         className={` transition duration-300 ease absolute z-20  transform h-[calc(100vh_-_70px)] top-[70px] md:w-2/5 w-full 
           right-0  ${!chatOpen ? "translate-x-[100%] " : "translate-x-[0%] "}`}
       >
-        <Chat closeAction={handleChatOpen} />
+        <Chat closeAction={handleChatOpen} testModalAction={handleTestOpen} />
       </div>
       <button
         onClick={needFirstTest ? handleTestModalOpen : handleChatOpen}

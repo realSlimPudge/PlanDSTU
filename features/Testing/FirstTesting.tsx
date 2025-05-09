@@ -2,12 +2,11 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
-import useSWR from "swr";
-import { TestingProps, TestResponse } from "./types";
+import { TestingProps } from "./types";
 import QuestionCard from "./QuestionCard";
 import host from "@/shared/host";
-import fetcher from "@/shared/api/getFetcher";
 import { useParams } from "next/navigation";
+import { useSelectedNodes } from "../Roadmap/Nodes/SelectedNodesContext";
 
 export default function FirstTesting({
   isOpen,
@@ -18,22 +17,30 @@ export default function FirstTesting({
 }: TestingProps) {
   //Проверка, есть ли тест
   const [haveTest, setHaveTest] = useState<boolean>(!!test);
-  const [requested, setRequested] = useState<boolean>(false);
   const { disciplineLink } = useParams<{ disciplineLink: string }>();
 
-  const { isLoading } = useSWR<TestResponse>(
-    !haveTest && requested
-      ? `${host}/tests/first-test?discipline_id=${encodeURIComponent(disciplineLink)}`
-      : null,
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      onSuccess: (data) => {
-        setCurrentTestId(data.id);
-        setCurrentTest(data.test);
-      },
-    },
-  );
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { allThemes } = useSelectedNodes();
+
+  //Запрос теста
+  const getFirstTest = async () => {
+    try {
+      setIsLoading(true);
+      const res = await fetch(
+        `${host}/tests/first-test?discipline_id=${encodeURIComponent(disciplineLink)}`,
+        {
+          credentials: "include",
+          body: JSON.stringify({ themes: allThemes }),
+          method: "POST",
+        },
+      );
+      const data = await res.json();
+      setCurrentTestId(data.id);
+      setCurrentTest(data.test);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   //Загрузка при отправке ответов
   const [uploading, setUploading] = useState<boolean>(false);
@@ -59,10 +66,6 @@ export default function FirstTesting({
       setHaveTest(true);
     }
   }, [currentTest]);
-
-  const handleRequestTest = () => {
-    setRequested(true);
-  };
 
   // Мемоизируем вычисления, связанные с вопросами
   const [currentIndex, setCurrentIndex] = useState<number>(0);
@@ -184,7 +187,7 @@ export default function FirstTesting({
                   </button>
                   <button
                     className="flex gap-x-2 justify-between items-center py-2 px-4 text-white rounded-md border cursor-pointer outline-none disabled:opacity-50 border-primary-color bg-primary-color hover:bg-primary-light-color"
-                    onClick={handleRequestTest}
+                    onClick={getFirstTest}
                   >
                     {isLoading && (
                       <div className="rounded-full border-2 animate-spin w-[10px] h-[10px] border-text-contrast-color border-b-transparent"></div>
