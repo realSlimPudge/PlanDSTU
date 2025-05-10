@@ -13,14 +13,16 @@ import {
   useEdgesState,
   useNodesState,
 } from "@xyflow/react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import "@xyflow/react/dist/style.css";
 import CategoryNode from "@/features/Roadmap/Nodes/CategoryNode";
 import TopicNode from "@/features/Roadmap/Nodes/TopicNode";
 import { useSelectedNodes } from "@/features/Roadmap/Nodes/SelectedNodesContext";
+
+type RoadmapCategory = "practice" | "lectures" | "independent_works";
 
 export default function RoadmapPage() {
   const { disciplineName, disciplineLink } = useParams<{
@@ -40,11 +42,36 @@ export default function RoadmapPage() {
     { revalidateOnFocus: false, refreshInterval: 0 },
   );
 
+  const [selectedCategory, setCurrentCategory] =
+    useState<RoadmapCategory>("practice");
+
+  const categories: RoadmapCategory[] = [
+    "practice",
+    "lectures",
+    "independent_works",
+  ];
+  const categoryTranslations = {
+    practice: "Практика",
+    lectures: "Лекции",
+    independent_works: "Самостоятельные работы",
+  };
+  const handleNext = () => {
+    const currentIndex = categories.indexOf(selectedCategory);
+    const nextIndex = (currentIndex + 1) % categories.length;
+    setCurrentCategory(categories[nextIndex]);
+  };
+
+  const handlePrev = () => {
+    const currentIndex = categories.indexOf(selectedCategory);
+    const prevIndex =
+      (currentIndex - 1 + categories.length) % categories.length;
+    setCurrentCategory(categories[prevIndex]);
+  };
   //Добавление списка всех тем
   const { addAllThemes } = useSelectedNodes();
   useEffect(() => {
     if (roadmap) {
-      const allThemes = roadmap.categories.flatMap(
+      const allThemes = roadmap[selectedCategory].categories.flatMap(
         (category) => category.topics,
       );
       addAllThemes(allThemes);
@@ -65,11 +92,11 @@ export default function RoadmapPage() {
     const newNodes: Node[] = [];
     const newEdges: Edge[] = [];
 
-    roadmap.categories.forEach((cat, i) => {
+    roadmap[selectedCategory].categories.forEach((cat, i) => {
       const catId = `cat-${i}`;
       const topics = cat.topics.length;
       const isFirst = i === 0;
-      const isLast = i === roadmap.categories.length - 1;
+      const isLast = i === roadmap.practice.categories.length - 1;
 
       newNodes.push({
         id: catId,
@@ -82,7 +109,7 @@ export default function RoadmapPage() {
         type: "categoryNode",
       });
 
-      if (i < roadmap.categories.length - 1) {
+      if (i < roadmap[selectedCategory].categories.length - 1) {
         const nextCatId = `cat-${i + 1}`;
         newEdges.push({
           id: `edge-${catId}-${nextCatId}`,
@@ -120,7 +147,7 @@ export default function RoadmapPage() {
 
     setNodes(newNodes);
     setEdges(newEdges);
-  }, [roadmap, setNodes, setEdges]);
+  }, [roadmap, setNodes, setEdges, selectedCategory]);
 
   //Обработчик клика на node
   const { toggleNode } = useSelectedNodes();
@@ -162,7 +189,11 @@ export default function RoadmapPage() {
     );
   }
 
-  if (!isLoading && roadmap && roadmap.categories.length === 0) {
+  if (
+    !isLoading &&
+    roadmap &&
+    roadmap[selectedCategory].categories.length === 0
+  ) {
     return (
       <div className="sm:w-[70%] w-[85%] mx-auto h-screen flex items-center justify-center">
         <ListsAnimation>
@@ -198,11 +229,24 @@ export default function RoadmapPage() {
         nodeTypes={nodeTypes}
         onNodeClick={handleNodeClick}
       >
-        <Controls
-          style={{ background: "blue" }}
-          position="bottom-center"
-          orientation="horizontal"
-        />
+        {" "}
+        <div className="flex absolute bottom-3 left-3 gap-x-2 py-3 px-2 rounded-2xl shadow-md z-60 bg-gray-color-3 text-text-color">
+          <button
+            onClick={handlePrev}
+            className="rounded-md transition duration-200 cursor-pointer text-text-2-color ease hover:bg-gray-color-1"
+          >
+            <ChevronLeft />
+          </button>
+          <h1>{categoryTranslations[selectedCategory]}</h1>
+
+          <button
+            onClick={handleNext}
+            className="rounded-md transition duration-200 cursor-pointer text-text-2-color ease hover:bg-gray-color-1"
+          >
+            <ChevronRight />
+          </button>
+        </div>
+        <Controls position="center-left" orientation="vertical" />
         <Background />
       </ReactFlow>
     </motion.div>

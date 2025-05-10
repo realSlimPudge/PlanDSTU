@@ -4,6 +4,8 @@ import "./globals.css";
 import { ThemeProvider } from "@/features/Providers/themeProvider";
 import Header from "@/widgets/Header/Header";
 import { SelectedNodesProvider } from "@/features/Roadmap/Nodes/SelectedNodesContext";
+import { Toaster } from "sonner";
+import { TestProvider } from "@/features/Testing/GlobalTestContext";
 
 const golos = Golos_Text({
   weight: ["400", "500", "600", "700", "800", "900"],
@@ -29,12 +31,15 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SelectedNodesProvider>
-            <div className="min-h-screen bg-app-bg">
-              <Header />
-              <main>{children}</main>
-            </div>
-          </SelectedNodesProvider>
+          <TestProvider>
+            <SelectedNodesProvider>
+              <div className="min-h-screen bg-app-bg">
+                <Header />
+                <main>{children}</main>
+                <Toaster position="bottom-left" />
+              </div>
+            </SelectedNodesProvider>
+          </TestProvider>
         </ThemeProvider>
       </body>
     </html>

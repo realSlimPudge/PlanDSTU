@@ -28,7 +28,7 @@ export default function QuestionCard({
 
       <Select value={selected || ""} onValueChange={(value) => onSelect(value)}>
         <SelectTrigger className="overflow-hidden w-full border focus:ring-2 bg-gray-color-3 text-text-color dark:bg-gray-color-3 hover:bg-gray-color-2 focus:ring-primary-color">
-          <SelectValue placeholder="Выберите ответ" className="pr-2 truncate" />
+          <SelectValue placeholder="Выберите ответ" className="truncate" />
         </SelectTrigger>
         <SelectContent
           className="w-full border-0 max-w-[90vw] bg-gray-color-3 md:max-w-[500px]"
@@ -41,10 +41,10 @@ export default function QuestionCard({
               <SelectItem
                 key={opt.label}
                 value={opt.label}
-                className="flex py-2 dark:hover:bg-gray-700 hover:bg-gray-color-2"
+                className="flex py-2 dark:text-gray-200 dark:hover:bg-gray-700 dark:data-[highlighted]:bg-gray-700 dark:data-[highlighted]:text-gray-200 hover:bg-gray-color-2"
               >
                 <div className="flex flex-wrap items-start">
-                  <span className="flex-shrink-0 mr-2 font-semibold text-text-color">
+                  <span className="flex-shrink-0 mr-2 font-semibold dark:text-gray-200 text-text-color">
                     {opt.label}.
                   </span>
                   <span className="flex-1 whitespace-normal break-words text-text-color">

@@ -58,4 +58,3 @@ export type Grade = {
   name: string;
   value: number;
 };
-// test_results = [{ name: string, grade: number }, {}, {}...]

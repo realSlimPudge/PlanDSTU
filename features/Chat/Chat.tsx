@@ -190,19 +190,19 @@ export default function Chat({
           onClick={() => {
             setShowModal(true);
           }}
-          className="p-1 rounded-sm transition-all duration-300 cursor-pointer group ease hover:bg-gray-color-7"
+          className="p-1 rounded-sm transition-all duration-300 cursor-pointer group ease hover:bg-gray-color-1"
         >
           <Trash2 className="text-text-color w-[18px] h-[18px] sm:w-[24px] sm:h-[24px]" />
         </button>
         <button
-          className="p-1 rounded-sm transition-all duration-300 cursor-pointer group ease hover:bg-gray-color-7"
+          className="p-1 rounded-sm transition-all duration-300 cursor-pointer group ease hover:bg-gray-color-1"
           onClick={close}
         >
           <X className="text-text-color w-[18px] h-[18px] sm:w-[24px] sm:h-[24px]" />
         </button>
         <button
           onClick={testModalAction}
-          className="relative p-1 rounded-sm transition-all duration-300 cursor-pointer group ease hover:bg-gray-color-7"
+          className="relative p-1 rounded-sm transition-all duration-300 cursor-pointer group ease hover:bg-gray-color-1"
         >
           <BookOpenIcon className="text-text-color w-[18px] h-[18px] sm:w-[24px] sm:h-[24px]" />
           {selectedNodes.length > 0 && (
@@ -241,11 +241,10 @@ export default function Chat({
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`px-4 py-2 rounded-lg w-fit ${
-              msg.type === "human"
+            className={`px-4 py-2 rounded-lg w-fit ${msg.type === "human"
                 ? "bg-primary-color text-text-contrast-color self-end max-w-[80%] "
                 : "bg-transparent text-text-color self-start max-w-full"
-            }`}
+              }`}
           >
             <ReactMarkdown remarkPlugins={[remarkBreaks]}>
               {msg.content}

@@ -224,3 +224,28 @@
   background-color: var(--color-gray-color-4) !important;
   border-radius: 10px !important;
 }
+
+[data-sonner-toaster] {
+  --toast-background: #11519c;
+  --toast-color: white;
+  --toast-border: #0d4585;
+}
+
+[data-sonner-toast] {
+  background-color: #11519c !important;
+  color: white !important;
+  border-color: #0d4585 !important;
+}
+
+[data-sonner-toast] [data-title],
+[data-sonner-toast] [data-description] {
+  color: white !important;
+}
+
+[data-sonner-toast] [data-close-button] {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+[data-sonner-toast] [data-close-button]:hover {
+  color: white !important;
+}

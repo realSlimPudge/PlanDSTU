@@ -100,11 +100,15 @@ export default function FirstTesting({
     const themeIndex = cumulative.findIndex((cum) => cum > currentIndex);
     const prevCum = themeIndex > 0 ? cumulative[themeIndex - 1] : 0;
     const indexInTheme = currentIndex - prevCum;
+    const sumQuestions = themes.reduce(
+      (cur, acc) => cur + acc.questions.length,
+      0,
+    );
 
     return {
       currentTheme: themes[themeIndex],
       currentQuestion: themes[themeIndex]?.questions[indexInTheme],
-      progressText: `Вопрос ${indexInTheme + 1} из ${themes[themeIndex]?.questions.length}`,
+      progressText: `Вопрос ${indexInTheme + 1} из ${themes[themeIndex]?.questions.length}, всего вопросов: ${sumQuestions}`,
       totalQuestions: total,
       allAnswered: answers.length === total && answers.every((a) => a !== null),
     };
