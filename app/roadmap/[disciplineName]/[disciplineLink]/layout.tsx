@@ -11,6 +11,7 @@ import { Bot } from "lucide-react";
 import { useParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
+import HistoryTest from "@/features/Testing/HistoryTest";
 
 export default function RoadmapLayout({
   children,
@@ -94,20 +95,15 @@ export default function RoadmapLayout({
 
   //Обычные тесты
   const [isTestOpen, setIsTestOpen] = useState<boolean>(false);
-
   const handleTestOpen = () => {
     setIsTestOpen((p) => !p);
   };
 
-  // const { activeTests } = useGlobalTests();
-  // useEffect(() => {
-  //   if (activeTests[0].status === "completed") {
-  //     console.log(activeTests[0]);
-  //     revalidate();
-  //   } else {
-  //     return;
-  //   }
-  // }, [activeTests]);
+  //Модалка с тестом
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState<boolean>(false);
+  const handleHistoryModalOpen = () => {
+    setIsHistoryModalOpen((p) => !p);
+  };
 
   return (
     <div className="overflow-hidden relative">
@@ -125,13 +121,21 @@ export default function RoadmapLayout({
         onCloseAction={handleTestOpen}
         test={test}
       />
+      <HistoryTest
+        isOpen={isHistoryModalOpen}
+        onCloseAction={handleHistoryModalOpen}
+      />
       <motion.div
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         className={` transition duration-300 ease absolute z-20  transform h-[calc(100vh_-_70px)] top-[70px] md:w-2/5 w-full 
           right-0  ${!chatOpen ? "translate-x-[100%] " : "translate-x-[0%] "}`}
       >
-        <Chat closeAction={handleChatOpen} testModalAction={handleTestOpen} />
+        <Chat
+          closeHistoryAction={handleHistoryModalOpen}
+          closeTestAction={handleChatOpen}
+          testModalAction={handleTestOpen}
+        />
       </motion.div>
       <button
         disabled={historyLoading}

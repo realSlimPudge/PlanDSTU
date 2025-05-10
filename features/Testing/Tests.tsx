@@ -11,6 +11,7 @@ import { useGlobalTests } from "./GlobalTestContext";
 import { Blocks, TestingProps } from "./types";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { useSWRConfig } from "swr";
 
 export default function Tests({
   isOpen,
@@ -19,6 +20,7 @@ export default function Tests({
   testId,
   revalidateAction,
 }: TestingProps) {
+  const { mutate } = useSWRConfig();
   //Получение данных из контекста
   const { selectedNodes: themes } = useSelectedNodes();
   const { addTest } = useGlobalTests();
@@ -79,8 +81,9 @@ export default function Tests({
     return {
       currentTheme: themes[themeIndex],
       currentQuestion: themes[themeIndex]?.questions[indexInTheme],
-      progressText: `Вопрос ${indexInTheme + 1} из ${themes[themeIndex]?.questions.length
-        }, всего вопросов: ${sumQuestions}`,
+      progressText: `Вопрос ${indexInTheme + 1} из ${
+        themes[themeIndex]?.questions.length
+      }, всего вопросов: ${sumQuestions}`,
       totalQuestions: total,
       allAnswered: answers.length === total && answers.every((a) => a !== null),
     };
@@ -143,6 +146,7 @@ export default function Tests({
         description: `Оценка ${answers.blocks[0].value}`,
       });
     } finally {
+      mutate(`${host}/tests/my-history?discipline_id=${disciplineLink}`);
       revalidateAction();
       setUploading(false);
       setCurrentTest(null);

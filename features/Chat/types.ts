@@ -8,6 +8,7 @@ export type HistoryRes = {
 };
 
 export type ChatProps = {
-  closeAction: () => void;
+  closeTestAction: () => void;
+  closeHistoryAction: () => void;
   testModalAction: () => void;
 };

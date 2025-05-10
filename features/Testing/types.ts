@@ -58,3 +58,13 @@ export type Grade = {
   name: string;
   value: number;
 };
+
+//History Tests
+export type TestHistory = {
+  history: HistoryOfTest[];
+};
+
+export type HistoryOfTest = {
+  PassedAt: string;
+  ResultsJSONB: Blocks;
+};

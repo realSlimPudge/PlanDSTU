@@ -8,6 +8,7 @@ import {
   ArrowDown,
   ArrowUp,
   BookOpenIcon,
+  FileClock,
   Globe,
   Trash2,
   X,
@@ -20,7 +21,8 @@ import { ChatMessages, ChatProps, HistoryRes } from "./types";
 import { useSelectedNodes } from "../Roadmap/Nodes/SelectedNodesContext";
 
 export default function Chat({
-  closeAction: close,
+  closeTestAction: close,
+  closeHistoryAction: historyClose,
   testModalAction,
 }: ChatProps) {
   const {
@@ -213,6 +215,12 @@ export default function Chat({
               </div>
             </>
           )}
+        </button>
+        <button
+          onClick={historyClose}
+          className="relative p-1 rounded-sm transition-all duration-300 cursor-pointer group ease hover:bg-gray-color-1"
+        >
+          <FileClock className="text-text-color w-[18px] h-[18px] sm:w-[24px] sm:h-[24px]" />
         </button>
       </div>
       <div
