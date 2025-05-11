@@ -1,4 +1,4 @@
-import { MoveRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Discipline } from "../Types/types";
 
@@ -10,7 +10,7 @@ export default function DisciplineLinkButton({ props }: ButtonProps) {
   return (
     <Link
       href={`/roadmap/${props.name}/${props.link}`}
-      className="w-full h-full"
+      className="w-full h-full group"
     >
       <div className="flex flex-col gap-y-3 py-5 px-8 rounded-3xl bg-element-bg text-text-color group">
         <div>
@@ -24,7 +24,11 @@ export default function DisciplineLinkButton({ props }: ButtonProps) {
           )}
         </div>
         <p className="flex gap-x-2">
-          Перейти к дисциплине <MoveRight strokeWidth={1} />{" "}
+          Перейти к дисциплине{" "}
+          <ChevronRight
+            strokeWidth={2}
+            className="transition duration-300 ease-in-out transform group-hover:translate-x-3"
+          />{" "}
         </p>
       </div>
     </Link>

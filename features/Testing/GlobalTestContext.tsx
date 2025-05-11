@@ -2,7 +2,7 @@
 
 import fetcher from "@/shared/api/getFetcher";
 import host from "@/shared/host";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
 import useSWR, { useSWRConfig } from "swr";
@@ -11,47 +11,98 @@ export type TestStatus = {
   task_id: string;
   status: "active" | "retry" | "completed" | "pending";
   disciplineLink: string;
+  disciplineName: string;
+  createdAt: string;
 };
 
 type TestContextType = {
-  activeTests: TestStatus[];
-  addTest: (task_id: string, disciplineLink: string) => void;
+  pendingTests: TestStatus[];
+  generatedTests: TestStatus[];
+  addTest: (
+    task_id: string,
+    disciplineLink: string,
+    disciplineName: string,
+  ) => void;
+  moveToGenerated: (test: TestStatus) => void;
+  clearGeneratedTests: () => void;
 };
 
 const TestContext = createContext<TestContextType>({
-  activeTests: [],
-  addTest: () => { },
+  pendingTests: [],
+  generatedTests: [],
+  addTest: () => {},
+  moveToGenerated: () => {},
+  clearGeneratedTests: () => {},
 });
 
-const LOCAL_STORAGE_KEY = "active_tests";
+const LOCAL_STORAGE_KEYS = {
+  PENDING: "pending_tests",
+  GENERATED: "generated_tests",
+};
 
 export const TestProvider = ({ children }: { children: React.ReactNode }) => {
+  const router = useRouter();
   const { mutate } = useSWRConfig();
-  const [activeTests, setActiveTests] = useState<TestStatus[]>(() => {
+
+  const [pendingTests, setPendingTests] = useState<TestStatus[]>(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+      const saved = localStorage.getItem(LOCAL_STORAGE_KEYS.PENDING);
       return saved ? JSON.parse(saved) : [];
     }
     return [];
   });
 
-  //Сохраняем в localstorage при изменении
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(activeTests));
-  }, [activeTests]);
+  const [generatedTests, setGeneratedTests] = useState<TestStatus[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem(LOCAL_STORAGE_KEYS.GENERATED);
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
 
-  const addTest = (task_id: string, disciplineLink: string) => {
-    setActiveTests((prev) => [
-      ...prev,
-      { task_id, status: "pending", disciplineLink },
-    ]);
+  // Сохранение в localstorage
+  useEffect(() => {
+    localStorage.setItem(
+      LOCAL_STORAGE_KEYS.PENDING,
+      JSON.stringify(pendingTests),
+    );
+    localStorage.setItem(
+      LOCAL_STORAGE_KEYS.GENERATED,
+      JSON.stringify(generatedTests),
+    );
+  }, [pendingTests, generatedTests]);
+
+  const addTest = (
+    task_id: string,
+    disciplineLink: string,
+    disciplineName: string,
+  ) => {
+    const newTest: TestStatus = {
+      task_id,
+      disciplineLink,
+      disciplineName,
+      status: "pending",
+      createdAt: new Date().toISOString(),
+    };
+
+    setPendingTests((prev) => [...prev, newTest]);
+  };
+
+  const moveToGenerated = (test: TestStatus) => {
+    setPendingTests((prev) => prev.filter((t) => t.task_id !== test.task_id));
+    setGeneratedTests((prev) => [...prev, { ...test, status: "completed" }]);
+  };
+
+  const clearGeneratedTests = () => {
+    setGeneratedTests([]);
+    localStorage.removeItem(LOCAL_STORAGE_KEYS.GENERATED);
   };
 
   const updateTestStatus = (
     task_id: string,
     newStatus: TestStatus["status"],
   ) => {
-    setActiveTests((prev) =>
+    setPendingTests((prev) =>
       prev.map((t) =>
         t.task_id === task_id ? { ...t, status: newStatus } : t,
       ),
@@ -59,27 +110,43 @@ export const TestProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const { disciplineLink } = useParams<{ disciplineLink: string }>();
-  const removeTest = (task_id: string) => {
+
+  const handleComplete = (test: TestStatus) => {
     mutate(`${host}/tests/history?link=${encodeURIComponent(disciplineLink)}`);
-    setActiveTests((prev) => prev.filter((t) => t.task_id !== task_id));
+    moveToGenerated(test);
+
+    toast.success("Тестирование", {
+      description: "Тест успешно сгенерирован",
+
+      action: {
+        label: "Открыть",
+        onClick: () =>
+          router.push(`/roadmap/${test.disciplineName}/${test.disciplineLink}`),
+      },
+    });
   };
 
   return (
-    <TestContext.Provider value={{ activeTests, addTest }}>
-      {activeTests.map((test) => (
+    <TestContext.Provider
+      value={{
+        pendingTests,
+        generatedTests,
+        addTest,
+        moveToGenerated,
+        clearGeneratedTests,
+      }}
+    >
+      {pendingTests.map((test) => (
         <TestStatusChecker
           key={test.task_id}
           test={test}
           onUpdate={(newStatus) => {
             updateTestStatus(test.task_id, newStatus);
             if (newStatus === "completed") {
-              toast.success("Тестирование", {
-                description: "Тест успешно сгенерирован",
-              });
-              removeTest(test.task_id);
+              handleComplete(test);
             }
           }}
-          onRemove={() => removeTest(test.task_id)}
+          onRemove={() => moveToGenerated(test)}
         />
       ))}
       {children}
@@ -96,7 +163,7 @@ const TestStatusChecker = ({
   onUpdate: (status: TestStatus["status"]) => void;
   onRemove: () => void;
 }) => {
-  const { } = useSWR<{ status: TestStatus["status"] }>(
+  useSWR<{ status: TestStatus["status"] }>(
     `${host}/tests/status?task_id=${test.task_id}`,
     fetcher,
     {
@@ -108,6 +175,7 @@ const TestStatusChecker = ({
       onError: () => onRemove(),
     },
   );
+
   return null;
 };
 

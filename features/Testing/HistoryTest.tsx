@@ -19,16 +19,18 @@ export default function HistoryTest({ isOpen, onCloseAction }: HistoryProps) {
     disciplineLink: string;
     disciplineName: string;
   }>();
-  const { data } = useSWR<TestHistory>(
+  const { data, error } = useSWR<TestHistory>(
     `${host}/tests/my-history?discipline_id=${disciplineLink}`,
     fetcher,
     { revalidateOnFocus: false, refreshInterval: 0 },
   );
 
   const getColorByScore = (score: number) => {
-    if (score >= 99) return "bg-green-300 text-green-800";
-    if (score >= 66) return "bg-yellow-300 text-yellow-800";
-    return "bg-red-300 text-red-800";
+    if (score >= 80)
+      return " bg-green-100 text-green-800 dark:bg-green-600 dark:text-green-100";
+    if (score >= 50)
+      return " bg-yellow-100 text-yellow-800 dark:bg-yellow-600 dark:text-yellow-100";
+    return " bg-red-100 text-red-800 dark:bg-red-500 dark:text-red-100";
   };
 
   const sendHistory = async () => {
@@ -47,6 +49,78 @@ export default function HistoryTest({ isOpen, onCloseAction }: HistoryProps) {
       onCloseAction();
     }
   };
+
+  if (error) {
+    return (
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            className="flex fixed inset-0 z-40 justify-center items-center bg-black/50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="flex flex-col p-6 w-3/4 bg-white rounded-lg shadow-lg sm:w-2/5 dark:bg-gray-800 max-h-[80vh]"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-2xl font-semibold text-text-color">
+                  Ошибка при получении истории
+                </h3>
+                <button
+                  onClick={onCloseAction}
+                  className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
+                  aria-label="Закрыть"
+                >
+                  <X className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  }
+
+  if (!data || data.history === null) {
+    return (
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            className="flex fixed inset-0 z-40 justify-center items-center bg-black/50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="flex flex-col p-6 w-3/4 bg-white rounded-lg shadow-lg sm:w-2/5 dark:bg-gray-800 max-h-[80vh]"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-2xl font-semibold text-text-color">
+                  У вас нет истории тестирований
+                </h3>
+                <button
+                  onClick={onCloseAction}
+                  className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
+                  aria-label="Закрыть"
+                >
+                  <X className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  }
 
   return (
     <AnimatePresence>
@@ -108,11 +182,16 @@ export default function HistoryTest({ isOpen, onCloseAction }: HistoryProps) {
                         </div>
 
                         <div className="mt-2 w-full h-2 bg-gray-200 rounded-full dark:bg-gray-600">
-                          <div
-                            className={`${getColorByScore(
-                              block.value,
-                            )} h-2 rounded-full`}
-                            style={{ width: `${block.value}%` }}
+                          <motion.div
+                            initial={{ width: 0 }}
+                            transition={{ delay: 0.1 }}
+                            animate={{ width: `${block.value}%` }}
+                            className={`h-2 rounded-full ${block.value >= 80
+                                ? "bg-green-500"
+                                : block.value >= 50
+                                  ? "bg-yellow-500"
+                                  : "bg-red-500"
+                              }`}
                           />
                         </div>
                       </div>
@@ -124,7 +203,7 @@ export default function HistoryTest({ isOpen, onCloseAction }: HistoryProps) {
             <div className="flex justify-end pt-4 mt-4">
               <button
                 onClick={sendHistory}
-                disabled={uploading}
+                disabled={uploading || !data}
                 className="flex gap-x-2 justify-between items-center py-2 px-4 text-white rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-default bg-primary-color"
               >
                 {uploading && (

@@ -4,13 +4,18 @@ import fetcher from "@/shared/api/getFetcher";
 import host from "@/shared/host";
 import ListsAnimation from "@/widgets/List/Animation/ListsAnimation";
 import ListSkeleton from "@/widgets/List/Skeleton/ListSkeleton";
-import { ArrowLeft, MoveRight } from "lucide-react";
+import { ArrowLeft, ChevronRight } from "lucide-react";
 import useSWR from "swr";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 type DisciplineTeacher = {
-  disciplines: string[];
+  disciplines: DisciplineInfo[];
+};
+
+type DisciplineInfo = {
+  name: string;
+  id: number;
 };
 
 export default function TeacherPage() {
@@ -67,14 +72,17 @@ export default function TeacherPage() {
           ) : (
             <div className="flex flex-col gap-y-4">
               {data.disciplines.map((el, i) => (
-                <Link href={`teacher/${el}`} key={i}>
-                  <div className="flex flex-col gap-y-3 py-5 px-8 rounded-3xl bg-element-bg text-text-color group">
+                <Link href={`teacher/${el.name}/${el.id}`} key={i}>
+                  <div className="flex flex-col gap-y-3 py-5 px-8 rounded-3xl shadow-sm bg-element-bg text-text-color group">
                     <h5 className="text-xl font-semibold transition-colors duration-200 ease group-hover:text-text-link-color">
-                      {el}
+                      {el.name}
                     </h5>
                     <p className="flex gap-x-2">
                       Перейти к направлению
-                      <MoveRight strokeWidth={1} />{" "}
+                      <ChevronRight
+                        strokeWidth={2}
+                        className="transition duration-300 ease-in-out transform group-hover:translate-x-3"
+                      />{" "}
                     </p>
                   </div>
                 </Link>

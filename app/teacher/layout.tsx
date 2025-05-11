@@ -32,7 +32,7 @@ export default function TeacherLayout({
               У вас нет прав для просмотра этой страницы
             </p>
             <button
-              className="flex gap-1 items-center text-text-2-color"
+              className="flex gap-1 items-center cursor-pointer text-text-2-color hover:text-text-color"
               onClick={() => router.back()}
             >
               <ArrowLeft strokeWidth={2} size={20} />

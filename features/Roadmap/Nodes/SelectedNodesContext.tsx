@@ -1,7 +1,13 @@
 "use client";
 
 import { Grade } from "@/features/Testing/types";
-import { createContext, useCallback, useContext, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 type SelectedNodesContextType = {
   //Цвет блоков
@@ -15,6 +21,7 @@ type SelectedNodesContextType = {
   selectedNodes: string[];
   toggleNode: (nodeName: string) => void;
   clearNodes: () => void;
+  isNodeSelected: (nodeName: string) => boolean;
 
   //Все блоки
   allThemes: string[];
@@ -36,20 +43,23 @@ export const SelectedNodesProvider = ({
 
   //Выбор блоков
   const toggleNode = useCallback((nodeName: string) => {
-    setSelectedNodes((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(nodeName)) {
-        newSet.delete(nodeName);
-      } else {
-        newSet.add(nodeName);
-      }
-      return Array.from(newSet);
-    });
+    setSelectedNodes((prev) =>
+      prev.includes(nodeName)
+        ? prev.filter((name) => name !== nodeName)
+        : [...prev, nodeName],
+    );
   }, []);
 
   const clearNodes = useCallback(() => {
     setSelectedNodes([]);
   }, []);
+
+  const isNodeSelected = useCallback(
+    (nodeName: string) => {
+      return selectedNodes.includes(nodeName);
+    },
+    [selectedNodes],
+  );
 
   //Цвет блоков
   const addNode = useCallback((node: Grade) => {
@@ -83,6 +93,7 @@ export const SelectedNodesProvider = ({
         toggleNode,
         clearNodes,
         addNode,
+        isNodeSelected,
         nodes,
         setNodes,
         clearNodesGrade,

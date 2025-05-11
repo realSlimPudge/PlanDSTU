@@ -11,15 +11,13 @@ export type TopicNode = Node<{
 }>;
 
 export default function TopicNode({ data }: NodeProps<TopicNode>) {
-  //Выбор блока
-  const [selected, setSelected] = useState<boolean>(false);
-  function toggleSelect() {
-    setSelected((p) => !p);
-  }
-
   //Цвет блока
-  const { getNodeValue } = useSelectedNodes();
+  const { getNodeValue, isNodeSelected, toggleNode } = useSelectedNodes();
+
+  const isSelected = isNodeSelected(data.label);
+
   const [grade, setGrade] = useState(0);
+
   useEffect(() => {
     const value = getNodeValue(data.label) || 0;
     setGrade(value);
@@ -32,13 +30,17 @@ export default function TopicNode({ data }: NodeProps<TopicNode>) {
   ]
     .filter(Boolean)
     .join(" ");
+
+  const handleToggleSelect = () => {
+    toggleNode(data.label);
+  };
   return (
     <>
       <Handle type="target" position={Position.Top} />
       <div
-        onClick={toggleSelect}
+        onClick={handleToggleSelect}
         className={`py-3 px-5 pt-1 rounded-2xl border max-h-[150px] shadow-md transition duration-200 ease
-        bg-gray-color-5 w-[240px] ${selected ? "border-primary-color animate-pulse" : "dark:border-divider-color "}`}
+        bg-gray-color-5 w-[240px] ${isSelected ? "border-primary-color animate-pulse" : "dark:border-divider-color "}`}
       >
         <div className="flex left-0 -top-3 gap-x-1 justify-start items-center my-1 text-xs font-light text-center text-text-2-color bg-gray-color-5">
           <div

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ThemeToggle } from "../ThemeSwitcher/ThemeSwitcher";
 import HeaderAnimation from "./HeaderProvider";
 import Image from "next/image";
+import TestWidget from "../TestsWidget/TestWidget";
 
 export default function Header() {
   return (
@@ -20,7 +21,8 @@ export default function Header() {
             />
             PlanDSTU
           </Link>
-          <div>
+          <div className="flex gap-x-2 items-center">
+            <TestWidget />
             <ThemeToggle />
           </div>
         </div>

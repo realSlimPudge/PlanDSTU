@@ -10,15 +10,17 @@ import {
   BookOpenIcon,
   FileClock,
   Globe,
+  RefreshCcw,
   Trash2,
   X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import fetcher from "@/shared/api/getFetcher";
 import clearHistory from "./api/clearHistory";
 import { ChatMessages, ChatProps, HistoryRes } from "./types";
 import { useSelectedNodes } from "../Roadmap/Nodes/SelectedNodesContext";
+import { useParams } from "next/navigation";
 
 export default function Chat({
   closeTestAction: close,
@@ -34,8 +36,11 @@ export default function Chat({
     revalidateOnFocus: false,
     refreshInterval: 0,
   });
+  const { mutate: mutateHistory } = useSWRConfig();
 
-  const { selectedNodes } = useSelectedNodes();
+  const { disciplineLink } = useParams<{ disciplineLink: string }>();
+
+  const { selectedNodes, allThemes } = useSelectedNodes();
 
   const [search, setSearch] = useState<boolean>(false);
   const [canSend, setCanSend] = useState<boolean>(false);
@@ -152,6 +157,28 @@ export default function Chat({
       console.error("Failed to clear history", e);
     }
   };
+
+  const getFirstTest = async () => {
+    try {
+      const res = await fetch(
+        `${host}/tests/first-test?discipline_id=${disciplineLink}`,
+        {
+          credentials: "include",
+          method: "POST",
+          body: JSON.stringify({ themes: allThemes }),
+        },
+      );
+      if (!res.ok) throw new Error("Попробуйте позже");
+    } catch (e) {
+      console.error(e);
+    } finally {
+      mutateHistory(
+        `${host}/tests/history?link=${encodeURIComponent(disciplineLink)}`,
+      );
+      close();
+    }
+  };
+
   return (
     <div className="flex relative flex-col w-full h-full border-l bg-app-bg border-divider-color">
       {showModal && (
@@ -221,6 +248,12 @@ export default function Chat({
           className="relative p-1 rounded-sm transition-all duration-300 cursor-pointer group ease hover:bg-gray-color-1"
         >
           <FileClock className="text-text-color w-[18px] h-[18px] sm:w-[24px] sm:h-[24px]" />
+        </button>
+        <button
+          onClick={getFirstTest}
+          className="relative p-1 rounded-sm transition-all duration-300 cursor-pointer group ease hover:bg-gray-color-1"
+        >
+          <RefreshCcw className="text-text-color w-[18px] h-[18px] sm:w-[24px] sm:h-[24px]" />
         </button>
       </div>
       <div

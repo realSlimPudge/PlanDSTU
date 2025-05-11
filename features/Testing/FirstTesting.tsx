@@ -7,6 +7,7 @@ import QuestionCard from "./QuestionCard";
 import host from "@/shared/host";
 import { useParams } from "next/navigation";
 import { useSelectedNodes } from "../Roadmap/Nodes/SelectedNodesContext";
+import { useSWRConfig } from "swr";
 
 export default function FirstTesting({
   isOpen,
@@ -15,6 +16,7 @@ export default function FirstTesting({
   testId,
   revalidateAction,
 }: TestingProps) {
+  const { mutate: mutateHistory } = useSWRConfig();
   //Проверка, есть ли тест
   const [haveTest, setHaveTest] = useState<boolean>(!!test);
   const { disciplineLink } = useParams<{ disciplineLink: string }>();
@@ -152,6 +154,7 @@ export default function FirstTesting({
       setUploading(false);
       onCloseAction();
       revalidateAction();
+      mutateHistory(`${host}/tests/my-history?discipline_id=${disciplineLink}`);
     }
   };
 

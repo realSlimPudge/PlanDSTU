@@ -37,10 +37,17 @@ export default function Home() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
+          className="flex gap-x-2 items-center"
         >
           <Link
+            href="teacher"
+            className="flex gap-x-2 items-center py-4 px-3 text-xl bg-transparent rounded-xl border transition duration-300 border-gray-color-1 text-text-color w-fit ease hover:bg-gray-color-1"
+          >
+            Преподавателям
+          </Link>
+          <Link
             href="faculties"
-            className="flex gap-x-2 items-center py-4 px-3 text-xl rounded-xl bg-text-link-color text-text-contrast-color w-fit"
+            className="flex gap-x-2 items-center py-4 px-3 text-xl rounded-xl transition duration-300 ease bg-primary-color text-text-contrast-color w-fit hover:bg-primary-light-color"
           >
             Начать <ArrowRight size={22} />{" "}
           </Link>

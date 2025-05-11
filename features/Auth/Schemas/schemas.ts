@@ -9,6 +9,7 @@ export const loginSchema = yup.object().shape({
 });
 
 export const registerSchema = yup.object().shape({
+  group: yup.string().required("Группа обязательна"),
   login: yup.string().required("Логин обязателен").min(3).max(50),
   password: yup
     .string()

@@ -149,15 +149,6 @@ export default function RoadmapPage() {
     setEdges(newEdges);
   }, [roadmap, setNodes, setEdges, selectedCategory]);
 
-  //Обработчик клика на node
-  const { toggleNode } = useSelectedNodes();
-  const handleNodeClick = (e: React.MouseEvent, node: Node) => {
-    if (node.type === "topicNode") {
-      const nodeName: string = node.data.label as string;
-      toggleNode(nodeName);
-    }
-  };
-
   if (error) {
     return (
       <section className="sm:w-[70%] w-[85%] mx-auto h-screen flex items-center justify-center">
@@ -227,7 +218,6 @@ export default function RoadmapPage() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
-        onNodeClick={handleNodeClick}
       >
         {" "}
         <div className="flex absolute bottom-3 left-3 gap-x-2 py-3 px-2 rounded-2xl shadow-md z-60 bg-gray-color-3 text-text-color">

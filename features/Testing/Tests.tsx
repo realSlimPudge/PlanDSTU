@@ -22,10 +22,13 @@ export default function Tests({
 }: TestingProps) {
   const { mutate } = useSWRConfig();
   //Получение данных из контекста
-  const { selectedNodes: themes } = useSelectedNodes();
-  const { addTest } = useGlobalTests();
+  const { selectedNodes: themes, clearNodes } = useSelectedNodes();
+  const { addTest, clearGeneratedTests, pendingTests } = useGlobalTests();
 
-  const { disciplineLink } = useParams<{ disciplineLink: string }>();
+  const { disciplineLink, disciplineName } = useParams<{
+    disciplineLink: string;
+    disciplineName: string;
+  }>();
 
   const [currentTest, setCurrentTest] = useState(test || null);
   const [currentTestId, setCurrentTestId] = useState(testId || null);
@@ -125,8 +128,13 @@ export default function Tests({
       );
       if (!res.ok) throw new Error("Попробуйте позже");
       const data = await res.json();
-      addTest(data.task_id, disciplineLink.toString());
+      addTest(
+        data.task_id,
+        disciplineLink.toString(),
+        disciplineName.toString(),
+      );
     } finally {
+      clearNodes();
       onCloseAction();
     }
   };
@@ -147,6 +155,7 @@ export default function Tests({
       });
     } finally {
       mutate(`${host}/tests/my-history?discipline_id=${disciplineLink}`);
+      clearGeneratedTests();
       revalidateAction();
       setUploading(false);
       setCurrentTest(null);
@@ -173,44 +182,88 @@ export default function Tests({
           >
             {!currentTest ? (
               <>
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-2xl font-semibold text-text-color">
-                    Выбранные темы
-                  </h3>
-                  <button
-                    onClick={onCloseAction}
-                    className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
-                    aria-label="Закрыть"
-                  >
-                    <X className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-                  </button>
-                </div>
-
-                <div className="overflow-y-auto max-h-[60vh]">
-                  <p className="mb-3 text-text-2-color">
-                    Запросить тестирование по следующим темам:
-                  </p>
-                  <ul className="mb-4 space-y-2">
-                    {themes.map((theme, i) => (
-                      <li
-                        key={i}
-                        className="py-2 px-3 bg-gray-100 rounded-lg dark:text-gray-200 dark:bg-gray-700 text-text-color"
+                {pendingTests.length ? (
+                  <>
+                    {" "}
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-2xl font-semibold text-text-color">
+                        Дождитесь генерации теста
+                      </h3>
+                      <button
+                        onClick={onCloseAction}
+                        className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
+                        aria-label="Закрыть"
                       >
-                        {theme}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="flex justify-end mt-6">
-                  <button
-                    disabled={themes.length < 1}
-                    className="flex gap-x-2 justify-center items-center py-2 px-4 text-white rounded-md border cursor-pointer outline-none disabled:opacity-50 border-primary-color bg-primary-color hover:bg-primary-light-color"
-                    onClick={getTest}
-                  >
-                    Запросить тест
-                  </button>
-                </div>
+                        <X className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                      </button>
+                    </div>
+                    <div className="overflow-y-auto max-h-[60vh]">
+                      <p className="mb-3 text-text-2-color">
+                        Генерация тестирование по следующим предметам:
+                      </p>
+                      <ul className="mb-4 space-y-2">
+                        {pendingTests.map((theme, i) => (
+                          <li
+                            key={i}
+                            className="flex gap-x-2 items-center py-2 px-3 bg-gray-100 rounded-lg dark:text-gray-200 dark:bg-gray-700 text-text-color"
+                          >
+                            {decodeURIComponent(theme.disciplineName)}
+                            <div className="rounded-full border-2 animate-spin w-[10px] h-[10px] border-text-contrast-color border-b-transparent"></div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="flex justify-end mt-6">
+                      <button
+                        disabled={themes.length < 1}
+                        className="flex gap-x-2 justify-center items-center py-2 px-4 text-white rounded-md border cursor-pointer outline-none disabled:opacity-50 border-primary-color bg-primary-color hover:bg-primary-light-color"
+                        onClick={getTest}
+                      >
+                        Запросить тест
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {" "}
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-2xl font-semibold text-text-color">
+                        Выбранные темы
+                      </h3>
+                      <button
+                        onClick={onCloseAction}
+                        className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
+                        aria-label="Закрыть"
+                      >
+                        <X className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                      </button>
+                    </div>
+                    <div className="overflow-y-auto max-h-[60vh]">
+                      <p className="mb-3 text-text-2-color">
+                        Запросить тестирование по следующим темам:
+                      </p>
+                      <ul className="mb-4 space-y-2">
+                        {themes.map((theme, i) => (
+                          <li
+                            key={i}
+                            className="py-2 px-3 bg-gray-100 rounded-lg dark:text-gray-200 dark:bg-gray-700 text-text-color"
+                          >
+                            {theme}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="flex justify-end mt-6">
+                      <button
+                        disabled={themes.length < 1}
+                        className="flex gap-x-2 justify-center items-center py-2 px-4 text-white rounded-md border cursor-pointer outline-none disabled:opacity-50 border-primary-color bg-primary-color hover:bg-primary-light-color"
+                        onClick={getTest}
+                      >
+                        Запросить тест
+                      </button>
+                    </div>
+                  </>
+                )}
               </>
             ) : (
               <>

@@ -230,13 +230,19 @@
   --toast-color: white;
   --toast-border: #0d4585;
 }
-
+[data-button] {
+  background-color: white !important;
+  color: #11519c !important;
+}
 [data-sonner-toast] {
   background-color: #11519c !important;
   color: white !important;
   border-color: #0d4585 !important;
 }
-
+[data-sonner-toast] [data-title] {
+  font-size: 16px;
+  font-weight: 700;
+}
 [data-sonner-toast] [data-title],
 [data-sonner-toast] [data-description] {
   color: white !important;

@@ -58,6 +58,18 @@ export default function RegistrationPage() {
             <p className="text-accent-color-red">{errors.password.message}</p>
           )}
         </div>
+        <div className="flex flex-col gap-y-2 w-[90%]">
+          <label className="text-xl font-medium">Группа</label>
+          <input
+            type="text"
+            placeholder="Введите логин"
+            {...register("group")}
+            className="p-2 rounded-2xl border border-divider-color outline-0 bg-element-bg-2"
+          />
+          {errors.login && (
+            <p className="text-accent-color-red">{errors.login.message}</p>
+          )}
+        </div>
         <div>
           <button
             type="submit"

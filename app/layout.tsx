@@ -24,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" className={golos.className} suppressHydrationWarning>
-      <body>
+      <body className="bg-app-bg">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

@@ -2,7 +2,7 @@ import { HistoryOfTest } from "@/features/Testing/types";
 
 export type StatsTeacher = {
   reports: Reports[];
-  stats: Stats[];
+  stats: Stats;
 };
 
 type Reports = {
@@ -20,7 +20,6 @@ type Report = {
 };
 
 type Stats = {
-  data: string;
   avg_score: number;
   min_score: number;
   max_score: number;
