@@ -2,7 +2,7 @@
 
 import host from "@/shared/host";
 import { registerSchema } from "@/features/Auth/Schemas/schemas";
-import { AuthType } from "@/features/Auth/Types/types";
+import { RegisterType } from "@/features/Auth/Types/types";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
@@ -13,9 +13,9 @@ export default function RegistrationPage() {
     register,
     formState: { errors },
     handleSubmit,
-  } = useForm<AuthType>({ resolver: yupResolver(registerSchema) });
+  } = useForm<RegisterType>({ resolver: yupResolver(registerSchema) });
 
-  const onSubmit = async (data: AuthType) => {
+  const onSubmit = async (data: RegisterType) => {
     try {
       const res = await fetch(`${host}/register`, {
         method: "POST",
@@ -62,7 +62,7 @@ export default function RegistrationPage() {
           <label className="text-xl font-medium">Группа</label>
           <input
             type="text"
-            placeholder="Введите логин"
+            placeholder="Введите группу"
             {...register("group")}
             className="p-2 rounded-2xl border border-divider-color outline-0 bg-element-bg-2"
           />
